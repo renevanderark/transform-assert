@@ -61,7 +61,7 @@ Results in
 
 ```
 DESCRIBE:
-  /home/rar010/work/transformassert/./src/test/resources/5.xslt
+  ./src/test/resources/5.xslt
 
 WHEN TRANSFORMING:
   <root><foo>bar</foo></root>
@@ -147,7 +147,7 @@ OUTPUT:
 
 FAILURES:
   node <one> wordt niet verwacht door deze XSD
-    Expected output to validate against XSD: /home/rar010/work/transformassert/src/test/resources/2.xsd
+    Expected output to validate against XSD: ./src/test/resources/2.xsd
     But got: cvc-complex-type.2.4.a: Invalid content was found starting with element 'one'. One of '{two}' is expected.
 ===================================================
 ```
