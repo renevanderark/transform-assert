@@ -61,21 +61,22 @@ Results in
 
 ```
 DESCRIBE:
-  ./src/test/resources/3.xslt
+  /home/rar010/work/transformassert/./src/test/resources/5.xslt
 
 WHEN TRANSFORMING:
   <root><foo>bar</foo></root>
 
 IT SHOULD:
-  MATCH XPATH //foo/text()='foo' (OK)
-  MATCH XPATH //bar/@attrib='bar' (OK)
-  MATCH XPATH //bar/text()='bar' (OK)
+  Node <one> moet de tekst binnen <foo> bevatten (OK)
+  Eerste node <two> moet de waarde van param1 bevatten (OK)
+  Tweede node <two> moet de waarde van param2 bevatten (OK)
 
 OUTPUT:
   <?xml version="1.0" encoding="UTF-8"?>
   <output>
-     <bar attrib="bar">bar</bar>
-     <foo>foo</foo>
+     <one>bar</one>
+     <two>param1-value</two>
+     <two>param2-value</two>
   </output>
 ===================================================
 ```
