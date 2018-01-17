@@ -10,8 +10,15 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.List;
 
+import static java.util.stream.Collectors.toList;
 import static nl.kb.xml.transformassert.TransformAssert.describe;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.core.Is.is;
+import static org.hamcrest.core.IsCollectionContaining.hasItems;
 
 public class TransformAssertTest {
 
@@ -165,5 +172,41 @@ public class TransformAssertTest {
                         "param2", "param2-value"
                 ).validatesAgainstXSD(new File("src/test/resources/2.xsd"), "node <one> wordt niet verwacht door deze XSD")
                 .evaluate();
+    }
+
+    @Test
+    public void reportingLogsExpectedMessages() throws IOException, TransformerException, SAXException, XPathExpressionException, ParserConfigurationException {
+        final List<String> messages = new ArrayList<>();
+
+        try {
+            describe(new File("./src/test/resources/5.xslt"), messages::add)
+                    .whenTransforming(XML, "param1", "param1-value", "param2", "param2-value")
+                    .isEqualto("niet gelijk aan dit", "moet gelijk zijn aan dit")
+                    .hasXpathContaining("/output/one/text()", "bar", "Node <one> moet de tekst binnen <foo> bevatten")
+                    .andHasXpathContaining("/output/two[1]/text()", "param1-value", "Eerste node <two> moet de waarde van param1 bevatten")
+                    .andHasXpathContaining("/output/two[2]/text()", "param1-value", "Tweede node <two> moet de waarde van param1 bevatten")
+                    .andValidatesAgainstXSD(new File("src/test/resources/1.xsd"), "valideert tegen 1.xsd")
+                    .andValidatesAgainstXSD(new File("src/test/resources/2.xsd"), "valideert niet tegen 2.xsd")
+                    .evaluate();
+        } catch (AssertionError e) {
+            // assert error
+        }
+
+        final List<String> trimmedMessages = messages.stream().map(String::trim).collect(toList());
+
+        messages.forEach(System.out::println);
+        assertThat(trimmedMessages, hasItems(
+                is("moet gelijk zijn aan dit (FAILED)"),
+                is("Node <one> moet de tekst binnen <foo> bevatten (OK)"),
+                is("Eerste node <two> moet de waarde van param1 bevatten (OK)"),
+                is("Tweede node <two> moet de waarde van param1 bevatten (FAILED)"),
+                is("valideert tegen 1.xsd (OK)"),
+                is("valideert niet tegen 2.xsd (FAILED)"),
+                containsString("FAILURES"),
+                is("Expected output to equal: 'niet gelijk aan dit'"),
+                is("Expected xpath /output/two[2]/text() to match: 'param1-value'"),
+                is("But got: 'param2-value'"),
+                containsString("Expected output to validate against XSD")
+        ));
     }
 }

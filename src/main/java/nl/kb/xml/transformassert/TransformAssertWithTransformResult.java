@@ -1,6 +1,5 @@
 package nl.kb.xml.transformassert;
 
-import com.sun.deploy.util.StringUtils;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
@@ -28,7 +27,6 @@ import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -68,7 +66,7 @@ public class TransformAssertWithTransformResult {
         if (!stringResult.equals(expected)) {
             errors.add(new AssertionError(String.format(
                     report + System.lineSeparator() +
-                            "  Expected output to match: '%s'" + System.lineSeparator() +
+                            "  Expected output to equal: '%s'" + System.lineSeparator() +
                             "  But got: '%s'" + System.lineSeparator()
                     , expected, stringResult
             )));
@@ -172,7 +170,7 @@ public class TransformAssertWithTransformResult {
         return usingNamespace(key, value);
     }
 
-    public TransformAssertWithTransformResult andValidatesAgainstXsd(File xsd, String... rule) throws FileNotFoundException, UnsupportedEncodingException, SAXException {
+    public TransformAssertWithTransformResult andValidatesAgainstXSD(File xsd, String... rule) throws FileNotFoundException, UnsupportedEncodingException, SAXException {
         return validatesAgainstXSD(xsd, rule);
     }
 
@@ -212,8 +210,7 @@ public class TransformAssertWithTransformResult {
 
 
     private String mkRule(String defaultRule, String[] rule) {
-        final String joined = StringUtils.join(Arrays.asList(rule), " ");
-        return joined.length() == 0 ? defaultRule : joined;
+        return rule.length > 0 ? rule[0] : defaultRule;
     }
 
     private void indent(String lines, int whitespace, Consumer<String> logBack) {
