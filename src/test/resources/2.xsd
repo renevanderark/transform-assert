@@ -1,0 +1,9 @@
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <xsd:element name="output" type="outputType"/>
+
+    <xsd:complexType name="outputType">
+        <xsd:sequence>
+            <xsd:element name="two" type="xsd:string" maxOccurs="2" />
+        </xsd:sequence>
+    </xsd:complexType>
+</xsd:schema>
