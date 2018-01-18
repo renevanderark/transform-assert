@@ -19,13 +19,6 @@
 
                 <xsl:value-of select="/Record/p028-/fa" />
             </dc:contributor>
-<!--
-
-            <dc:contributor dcx:role="copiist"><xsl:value-of select="/Record/p028-[../p002-/f0='x']/fa" /></dc:contributor>
-            <dc:contributor dcx:role="illustrator">
-                <xsl:value-of select="/Record/p028-[../p002-/f0='y']/fa" />
-            </dc:contributor>
--->
         </srw_dc:dc>
     </xsl:template>
 </xsl:stylesheet>

@@ -1,5 +1,6 @@
 package nl.kb.xml.transformasserttests;
 
+import nl.kb.xml.transformassert.TransformAssertWithTransformer;
 import org.junit.Test;
 import org.xml.sax.SAXException;
 
@@ -212,7 +213,8 @@ public class TransformAssertTest {
 
     @Test
     public void moeilijk() throws IOException, TransformerException, ParserConfigurationException, SAXException, XPathExpressionException {
-        describe(new File("./src/test/resources/moeilijk.xslt"))
+        final TransformAssertWithTransformer moeilijk = describe(new File("./src/test/resources/moeilijk.xslt"));
+        moeilijk
                 .whenTransforming("<Record>" +
                         "<p002-><f0>y</f0></p002->" +
                         "<p028-><fa>inhoud van p028-/fa</fa></p028->" +
@@ -220,6 +222,16 @@ public class TransformAssertTest {
                 .usingNamespace("dc", "http://purl.org/dc/elements/1.1/")
                 .andUsingNamespace("dcx", "http://krait.kb.nl/coop/tel/handbook/telterms.html")
                 .hasXpathContaining("//dc:contributor/@dcx:role", "copiist", "Als p002- is y dan moet dc:contributor de rol copiist hebben")
+                .evaluate();
+
+        moeilijk
+                .whenTransforming("<Record>" +
+                        "<p002-><f0>x</f0></p002->" +
+                        "<p028-><fa>inhoud van p028-/fa</fa></p028->" +
+                        "</Record>")
+                .usingNamespace("dc", "http://purl.org/dc/elements/1.1/")
+                .andUsingNamespace("dcx", "http://krait.kb.nl/coop/tel/handbook/telterms.html")
+                .hasXpathContaining("//dc:contributor/@dcx:role", "illustrator", "Als p002- is x dan moet dc:contributor de rol illustrator hebben")
                 .evaluate();
     }
 }
