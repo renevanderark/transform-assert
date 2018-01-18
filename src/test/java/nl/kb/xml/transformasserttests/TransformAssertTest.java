@@ -209,4 +209,17 @@ public class TransformAssertTest {
                 containsString("Expected output to validate against XSD")
         ));
     }
+
+    @Test
+    public void moeilijk() throws IOException, TransformerException, ParserConfigurationException, SAXException, XPathExpressionException {
+        describe(new File("./src/test/resources/moeilijk.xslt"))
+                .whenTransforming("<Record>" +
+                        "<p002-><f0>y</f0></p002->" +
+                        "<p028-><fa>inhoud van p028-/fa</fa></p028->" +
+                        "</Record>")
+                .usingNamespace("dc", "http://purl.org/dc/elements/1.1/")
+                .andUsingNamespace("dcx", "http://krait.kb.nl/coop/tel/handbook/telterms.html")
+                .hasXpathContaining("//dc:contributor/@dcx:role", "copiist", "Als p002- is y dan moet dc:contributor de rol copiist hebben")
+                .evaluate();
+    }
 }

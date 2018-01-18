@@ -84,6 +84,10 @@ public class TransformAssertWithTransformResult {
         final String report = mkRule("MATCH XPATH " + xPath + "='" + expected + "'", rule);
 
         final DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+        if (!namespaces.keySet().isEmpty()) {
+            dbf.setNamespaceAware(true);
+        }
+
         final XPathFactory xPathFactory = new net.sf.saxon.xpath.XPathFactoryImpl();
         final XPath xpath = xPathFactory.newXPath();
         final DocumentBuilder documentBuilder = dbf.newDocumentBuilder();
