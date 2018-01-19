@@ -78,61 +78,77 @@ public class TransformAssertWithTransformResult {
         return this;
     }
 
+    private TransformAssertWithTransformResult matchXPath(String xPath, String expected, boolean negate, String... rule)
+            throws XPathExpressionException, ParserConfigurationException, IOException, SAXException {
+
+            final String report = mkRule(
+                    (negate ? "NOT MATCH XPATH " : "MATCH XPATH ") + xPath + "='" + expected + "'"
+                    , rule);
+
+            final DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+            if (!namespaces.keySet().isEmpty()) {
+                dbf.setNamespaceAware(true);
+            }
+
+            final XPathFactory xPathFactory = new net.sf.saxon.xpath.XPathFactoryImpl();
+            final XPath xpath = xPathFactory.newXPath();
+            final DocumentBuilder documentBuilder = dbf.newDocumentBuilder();
+            final Document doc = documentBuilder.parse(new ByteArrayInputStream(transformationOutput));
+            if (!namespaces.keySet().isEmpty()) {
+                xpath.setNamespaceContext(new NamespaceContext() {
+                    @Override
+                    public String getNamespaceURI(String prefix) {
+                        if (namespaces.containsKey(prefix)) {
+                            return namespaces.get(prefix);
+                        }
+                        return null;
+                    }
+
+                    @Override
+                    public String getPrefix(String namespaceURI) {
+                        return null;
+                    }
+
+                    @Override
+                    public Iterator getPrefixes(String namespaceURI) {
+                        return null;
+                    }
+                });
+            }
+
+            final XPathExpression expression = xpath.compile(xPath);
+
+            final String stringResult = expression.evaluate(doc).trim();
+            if (stringResult.equals(expected) == negate) {
+                errors.add(new AssertionError(String.format(
+                        report + System.lineSeparator() +
+                                "  Expected xpath %s%sto match: '%s'" + System.lineSeparator() +
+                                "  But got: '%s'" + System.lineSeparator()
+                        , xPath, negate ? " NOT " : " ", expected, stringResult
+                )));
+
+                indent(String.format("%s (%s)", report, FAILED), 2, logBack);
+            } else {
+                indent(String.format("%s (%s)", report, OK), 2, logBack);
+            }
+
+
+            return this;
+    }
+
+
     public TransformAssertWithTransformResult hasXpathContaining(String xPath, String expected, String... rule)
             throws XPathExpressionException, ParserConfigurationException, IOException, SAXException {
 
-        final String report = mkRule("MATCH XPATH " + xPath + "='" + expected + "'", rule);
-
-        final DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-        if (!namespaces.keySet().isEmpty()) {
-            dbf.setNamespaceAware(true);
-        }
-
-        final XPathFactory xPathFactory = new net.sf.saxon.xpath.XPathFactoryImpl();
-        final XPath xpath = xPathFactory.newXPath();
-        final DocumentBuilder documentBuilder = dbf.newDocumentBuilder();
-        final Document doc = documentBuilder.parse(new ByteArrayInputStream(transformationOutput));
-        if (!namespaces.keySet().isEmpty()) {
-            xpath.setNamespaceContext(new NamespaceContext() {
-                @Override
-                public String getNamespaceURI(String prefix) {
-                    if (namespaces.containsKey(prefix)) {
-                        return namespaces.get(prefix);
-                    }
-                    return null;
-                }
-
-                @Override
-                public String getPrefix(String namespaceURI) {
-                    return null;
-                }
-
-                @Override
-                public Iterator getPrefixes(String namespaceURI) {
-                    return null;
-                }
-            });
-        }
-
-        final XPathExpression expression = xpath.compile(xPath);
-
-        final String stringResult = expression.evaluate(doc).trim();
-        if (!stringResult.equals(expected)) {
-            errors.add(new AssertionError(String.format(
-                report + System.lineSeparator() +
-                "  Expected xpath %s to match: '%s'" + System.lineSeparator() +
-                "  But got: '%s'" + System.lineSeparator()
-                , xPath, expected, stringResult
-            )));
-
-            indent(String.format("%s (%s)", report, FAILED), 2, logBack);
-        } else {
-            indent(String.format("%s (%s)", report, OK), 2, logBack);
-        }
-
-
-        return this;
+        return matchXPath(xPath, expected, false, rule);
     }
+
+    public TransformAssertWithTransformResult doesNothaveXpathContaining(String xPath, String expected, String... rule)
+            throws XPathExpressionException, ParserConfigurationException, IOException, SAXException {
+
+        return matchXPath(xPath, expected, true, rule);
+    }
+
 
     public TransformAssertWithTransformResult validatesAgainstXSD(File xsd, String... rule) throws UnsupportedEncodingException, FileNotFoundException, SAXException {
         final Reader xmlReader = new InputStreamReader(new ByteArrayInputStream(transformationOutput), StandardCharsets.UTF_8.name());
@@ -169,6 +185,12 @@ public class TransformAssertWithTransformResult {
 
         return hasXpathContaining(xPath, expected, rule);
     }
+
+    public TransformAssertWithTransformResult andDoesNotHaveXpathContaining(String xPath, String expected, String... rule) throws ParserConfigurationException, SAXException, XPathExpressionException, IOException {
+
+        return doesNothaveXpathContaining(xPath, expected, rule);
+    }
+
 
     public TransformAssertWithTransformResult andUsingNamespace(String key, String value) {
         return usingNamespace(key, value);

@@ -44,7 +44,7 @@ public class TransformAssertTest {
     public void isEqualToAssertsStringInequalityOfOutput() throws UnsupportedEncodingException, TransformerException, FileNotFoundException {
         describe(XSLT)
                 .whenTransforming(XML)
-                .isEqualto("not bar")
+                .isEqualto("not bar", "het moet 'not bar' zijn")
                 .evaluate();
 
     }
@@ -184,7 +184,7 @@ public class TransformAssertTest {
                     .whenTransforming(XML, "param1", "param1-value", "param2", "param2-value")
                     .isEqualto("niet gelijk aan dit", "moet gelijk zijn aan dit")
                     .hasXpathContaining("/output/one/text()", "bar", "Node <one> moet de tekst binnen <foo> bevatten")
-                    .andHasXpathContaining("/output/two[1]/text()", "param1-value", "Eerste node <two> moet de waarde van param1 bevatten")
+                    .andDoesNotHaveXpathContaining("/output/two[1]/text()", "param1-value", "Eerste node <two> mag de waarde van param1 niet bevatten")
                     .andHasXpathContaining("/output/two[2]/text()", "param1-value", "Tweede node <two> moet de waarde van param1 bevatten")
                     .andValidatesAgainstXSD(new File("src/test/resources/1.xsd"), "valideert tegen 1.xsd")
                     .andValidatesAgainstXSD(new File("src/test/resources/2.xsd"), "valideert niet tegen 2.xsd")
@@ -199,12 +199,14 @@ public class TransformAssertTest {
         assertThat(trimmedMessages, hasItems(
                 is("moet gelijk zijn aan dit (FAILED)"),
                 is("Node <one> moet de tekst binnen <foo> bevatten (OK)"),
-                is("Eerste node <two> moet de waarde van param1 bevatten (OK)"),
+                is("Eerste node <two> mag de waarde van param1 niet bevatten (FAILED)"),
                 is("Tweede node <two> moet de waarde van param1 bevatten (FAILED)"),
                 is("valideert tegen 1.xsd (OK)"),
                 is("valideert niet tegen 2.xsd (FAILED)"),
                 containsString("FAILURES"),
                 is("Expected output to equal: 'niet gelijk aan dit'"),
+                is("Expected xpath /output/two[1]/text() NOT to match: 'param1-value'"),
+                is("But got: 'param1-value'"),
                 is("Expected xpath /output/two[2]/text() to match: 'param1-value'"),
                 is("But got: 'param2-value'"),
                 containsString("Expected output to validate against XSD")
@@ -222,6 +224,8 @@ public class TransformAssertTest {
                 .usingNamespace("dc", "http://purl.org/dc/elements/1.1/")
                 .andUsingNamespace("dcx", "http://krait.kb.nl/coop/tel/handbook/telterms.html")
                 .hasXpathContaining("//dc:contributor/@dcx:role", "copiist", "Als p002- is y dan moet dc:contributor de rol copiist hebben")
+
+
                 .evaluate();
 
         moeilijk
@@ -234,4 +238,15 @@ public class TransformAssertTest {
                 .hasXpathContaining("//dc:contributor/@dcx:role", "illustrator", "Als p002- is x dan moet dc:contributor de rol illustrator hebben")
                 .evaluate();
     }
+
+    @Test
+    public void negatedXpathMatch() throws IOException, TransformerException, ParserConfigurationException, SAXException, XPathExpressionException {
+        describe(new File("./src/test/resources/5.xslt"))
+            .whenTransforming(XML, "param1", "param1-value", "param2", "param2-value")
+            .hasXpathContaining("/output/one/text()", "bar" )
+            .andHasXpathContaining("/output/two[1]/text()", "param1-value")
+            .andDoesNotHaveXpathContaining("/output/two[2]/text()", "param1-value")
+            .evaluate();
+    }
+
 }
