@@ -72,8 +72,9 @@ public class TransformAssertWithTransformer {
             final TransformerFactory factory = new net.sf.saxon.TransformerFactoryImpl();
             if (xsltPath != null) {
                 final String xsltDir = xsltPath
-                        .replaceAll(System.getProperty("user.dir") + "/", "")
-                        .replaceAll("[^/]*$", "");
+                        .replace(System.getProperty("user.dir"), "")
+                        .replaceAll("^[/\\\\]", "")
+                        .replaceAll("[^/\\\\]*$", "");
 
                 uriResolver = new RelativePathUriResolver(xsltDir);
                 factory.setURIResolver(uriResolver);
@@ -85,6 +86,7 @@ public class TransformAssertWithTransformer {
             return templates;
         }
     }
+
 
 
     void setXsltPath(String xsltPath) {
