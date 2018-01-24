@@ -224,8 +224,6 @@ public class TransformAssertTest {
                 .usingNamespace("dc", "http://purl.org/dc/elements/1.1/")
                 .andUsingNamespace("dcx", "http://krait.kb.nl/coop/tel/handbook/telterms.html")
                 .hasXpathContaining("//dc:contributor/@dcx:role", "copiist", "Als p002- is y dan moet dc:contributor de rol copiist hebben")
-
-
                 .evaluate();
 
         moeilijk

@@ -9,6 +9,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.Source;
+import javax.xml.transform.TransformerException;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
@@ -43,13 +44,14 @@ public class TransformAssertWithTransformResult {
     private final List<AssertionError> errors = new ArrayList<>();
     private final Consumer<String> logBack;
     private final Consumer<String> outputConsumer;
+    private final List<TransformerException> errorsAndWarnings;
 
 
     TransformAssertWithTransformResult(TransformAssertWithTransformer transformAssertWithTransformer, byte[] transformationOutput) {
         this.transformationOutput = transformationOutput;
         this.logBack = transformAssertWithTransformer.getLogBack();
         this.outputConsumer = transformAssertWithTransformer.getTransformationOutput();
-
+        this.errorsAndWarnings = transformAssertWithTransformer.getErrorsAndWarnings();
         initialize(transformAssertWithTransformer);
     }
 
@@ -203,6 +205,10 @@ public class TransformAssertWithTransformResult {
     }
 
     public void evaluate() throws UnsupportedEncodingException {
+        evaluate(false);
+    }
+
+    public void evaluate(boolean listXsltWarnings) throws UnsupportedEncodingException {
         if (outputConsumer == null) {
             logBack.accept(System.lineSeparator() + "OUTPUT:");
         }
@@ -213,6 +219,15 @@ public class TransformAssertWithTransformResult {
 
         logBack.accept(String.format("===================================================%s", System.lineSeparator()));
 
+        if (listXsltWarnings && !errorsAndWarnings.isEmpty()) {
+            logBack.accept("XSLT WARNINGS:");
+            for (TransformerException ex : errorsAndWarnings) {
+                indent(ex.getMessage(), 2, logBack);
+            }
+            logBack.accept(String.format("===================================================%s", System.lineSeparator()));
+        }
+
+
         if (!errors.isEmpty()) {
             logBack.accept("FAILURES:");
             for (AssertionError assertionError : errors) {
@@ -222,6 +237,7 @@ public class TransformAssertWithTransformResult {
 
             throw errors.get(0);
         }
+
     }
 
 

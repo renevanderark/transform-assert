@@ -1,5 +1,6 @@
 package nl.kb.xml.transformassert;
 
+import javax.xml.transform.ErrorListener;
 import javax.xml.transform.Templates;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
@@ -16,10 +17,12 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Consumer;
 
 public class TransformAssertWithTransformer {
-
+    private final List<TransformerException> errorsAndWarnings = new ArrayList<>();
     private final Consumer<String> logBack;
     private final Consumer<String> transformationOutput;
     private String sourceXmlPath;
@@ -64,6 +67,23 @@ public class TransformAssertWithTransformer {
         for (int i = 0; i < parameters.length; i += 2) {
             transformer.setParameter(parameters[i], parameters[i + 1]);
         }
+
+        ((net.sf.saxon.Controller)transformer).setErrorListener(new ErrorListener() {
+            @Override
+            public void warning(TransformerException exception) throws TransformerException {
+                errorsAndWarnings.add(exception);
+            }
+
+            @Override
+            public void error(TransformerException exception) throws TransformerException {
+                errorsAndWarnings.add(exception);
+            }
+
+            @Override
+            public void fatalError(TransformerException exception) throws TransformerException {
+                throw exception;
+            }
+        });
         transformer.transform(sourceXml, new StreamResult(out));
 
         return new TransformAssertWithTransformResult(this, out.toByteArray());
@@ -123,7 +143,11 @@ public class TransformAssertWithTransformer {
         return logBack;
     }
 
-    public Consumer<String> getTransformationOutput() {
+    Consumer<String> getTransformationOutput() {
         return transformationOutput;
+    }
+
+    List<TransformerException> getErrorsAndWarnings() {
+        return errorsAndWarnings;
     }
 }
