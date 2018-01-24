@@ -173,3 +173,17 @@ describe(new File("./src/test/resources/5.xslt"), System.err::println)
         .whenTransforming(XML)
         .evaluate();
 ```
+
+### Log output to custom String Consumer
+
+When your transformation generates a lot of output you might want to redirect that somewhere else.
+
+Print transformation output to a file:
+
+```java
+final PrintWriter pw = new PrintWriter(new FileOutputStream("output.xml"));
+
+describe(new File("./src/test/resources/5.xslt"), System.out::println, pw::println)
+        .whenTransforming(XML)
+        .evaluate();
+``` 

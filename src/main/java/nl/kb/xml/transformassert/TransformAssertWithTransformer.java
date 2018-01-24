@@ -21,6 +21,7 @@ import java.util.function.Consumer;
 public class TransformAssertWithTransformer {
 
     private final Consumer<String> logBack;
+    private final Consumer<String> transformationOutput;
     private String sourceXmlPath;
     private String sourceXmlString;
 
@@ -30,8 +31,9 @@ public class TransformAssertWithTransformer {
     private Templates templates;
     private RelativePathUriResolver uriResolver;
 
-    TransformAssertWithTransformer(Consumer<String> logBack) {
+    TransformAssertWithTransformer(Consumer<String> logBack, Consumer<String> transformationOutput) {
         this.logBack = logBack;
+        this.transformationOutput = transformationOutput;
     }
 
 
@@ -119,5 +121,9 @@ public class TransformAssertWithTransformer {
 
     Consumer<String> getLogBack() {
         return logBack;
+    }
+
+    public Consumer<String> getTransformationOutput() {
+        return transformationOutput;
     }
 }

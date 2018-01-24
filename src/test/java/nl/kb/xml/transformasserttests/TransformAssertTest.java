@@ -249,4 +249,15 @@ public class TransformAssertTest {
             .evaluate();
     }
 
+    @Test
+    public void supportsCustomOutputConsumer() throws UnsupportedEncodingException, TransformerException, FileNotFoundException {
+        final List<String> out = new ArrayList<>();
+        describe(XSLT, System.out::println, out::add)
+                .whenTransforming(XML)
+                .isEqualto("bar")
+                .evaluate();
+
+        assertThat(out, org.hamcrest.Matchers.contains("bar"));
+    }
+
 }

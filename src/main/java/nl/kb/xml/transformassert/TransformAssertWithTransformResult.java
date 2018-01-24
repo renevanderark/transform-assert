@@ -42,11 +42,13 @@ public class TransformAssertWithTransformResult {
     private final Map<String, String> namespaces = new HashMap<>();
     private final List<AssertionError> errors = new ArrayList<>();
     private final Consumer<String> logBack;
+    private final Consumer<String> outputConsumer;
 
 
     TransformAssertWithTransformResult(TransformAssertWithTransformer transformAssertWithTransformer, byte[] transformationOutput) {
         this.transformationOutput = transformationOutput;
         this.logBack = transformAssertWithTransformer.getLogBack();
+        this.outputConsumer = transformAssertWithTransformer.getTransformationOutput();
 
         initialize(transformAssertWithTransformer);
     }
@@ -201,9 +203,13 @@ public class TransformAssertWithTransformResult {
     }
 
     public void evaluate() throws UnsupportedEncodingException {
+        if (outputConsumer == null) {
+            logBack.accept(System.lineSeparator() + "OUTPUT:");
+        }
 
-        logBack.accept(System.lineSeparator() + "OUTPUT:");
-        indent(new String(transformationOutput, StandardCharsets.UTF_8.name()), 2, logBack);
+        final Consumer<String> outConsumer = outputConsumer == null ? logBack : outputConsumer;
+        final int indent = outputConsumer == null ? 2 : 0;
+        indent(new String(transformationOutput, StandardCharsets.UTF_8.name()), indent, outConsumer);
 
         logBack.accept(String.format("===================================================%s", System.lineSeparator()));
 
