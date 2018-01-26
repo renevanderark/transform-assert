@@ -258,4 +258,44 @@ public class TransformAssertTest {
         assertThat(out, org.hamcrest.Matchers.contains("bar"));
     }
 
+
+    @Test
+    public void supportsComparisonWithBaseline() throws IOException, TransformerException, ParserConfigurationException, SAXException, XPathExpressionException {
+
+        describe(XSLT)
+                .whenComparingTo(new File("./src/test/resources/1.xslt"))
+                .whenTransforming(XML)
+                .hasEqualOutputs()
+                .evaluate();
+
+        describe(new File("./src/test/resources/3.xslt"))
+                .whenComparingTo(new File("./src/test/resources/3.xslt"))
+                .whenTransforming(XML)
+                .hasMatchingXPathResultsFor("/output/bar[@attrib='bar']/text()")
+                .hasMatchingXPathResultsFor("/output/foo/text()")
+                .evaluate();
+
+
+    }
+
+    @Test(expected = AssertionError.class)
+    public void throwsWhenComparisonWithBaselineFails() throws UnsupportedEncodingException, TransformerException, FileNotFoundException {
+
+        describe(new File("./src/test/resources/3.xslt"))
+                .whenComparingTo(XSLT)
+                .whenTransforming(XML)
+                .hasEqualOutputs()
+                .evaluate();
+
+    }
+
+    @Test(expected = AssertionError.class)
+    public void throwsWhenXpathComparisonFails() throws IOException, TransformerException, ParserConfigurationException, SAXException, XPathExpressionException {
+        describe(new File("./src/test/resources/5.xslt"))
+                .whenComparingTo(new File("./src/test/resources/3.xslt"))
+                .whenTransforming(XML)
+                .hasMatchingXPathResultsFor("/output/bar[@attrib='bar']/text()")
+                .hasMatchingXPathResultsFor("/output/foo/text()")
+                .evaluate();
+    }
 }

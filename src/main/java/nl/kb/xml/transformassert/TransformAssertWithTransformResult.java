@@ -1,12 +1,8 @@
 package nl.kb.xml.transformassert;
 
-import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
 import javax.xml.XMLConstants;
-import javax.xml.namespace.NamespaceContext;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.Source;
 import javax.xml.transform.TransformerException;
@@ -14,10 +10,7 @@ import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -29,15 +22,14 @@ import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
-public class TransformAssertWithTransformResult {
+import static nl.kb.xml.transformassert.ResultStatus.FAILED;
+import static nl.kb.xml.transformassert.ResultStatus.OK;
 
-    private static final String FAILED = "FAILED";
-    private static final String OK = "OK";
+public class TransformAssertWithTransformResult {
 
     private final byte[] transformationOutput;
     private final Map<String, String> namespaces = new HashMap<>();
@@ -65,7 +57,7 @@ public class TransformAssertWithTransformResult {
     public TransformAssertWithTransformResult isEqualto(String expected, String... rule) throws UnsupportedEncodingException {
         final String stringResult = new String(transformationOutput, StandardCharsets.UTF_8.name());
 
-        final String report = mkRule("EQUAL: " + expected, rule);
+        final String report = LogUtil.mkRule("EQUAL: " + expected, rule);
 
         if (!stringResult.equals(expected)) {
             errors.add(new AssertionError(String.format(
@@ -74,9 +66,9 @@ public class TransformAssertWithTransformResult {
                             "  But got: '%s'" + System.lineSeparator()
                     , expected, stringResult
             )));
-            indent(String.format("%s (%s)", report, FAILED), 2, logBack);
+            LogUtil.indent(String.format("%s (%s)", report, FAILED), 2, logBack);
         } else {
-            indent(String.format("%s (%s)", report, OK), 2, logBack);
+            LogUtil.indent(String.format("%s (%s)", report, OK), 2, logBack);
         }
 
         return this;
@@ -85,44 +77,11 @@ public class TransformAssertWithTransformResult {
     private TransformAssertWithTransformResult matchXPath(String xPath, String expected, boolean negate, String... rule)
             throws XPathExpressionException, ParserConfigurationException, IOException, SAXException {
 
-            final String report = mkRule(
-                    (negate ? "NOT MATCH XPATH " : "MATCH XPATH ") + xPath + "='" + expected + "'"
-                    , rule);
+        final String report = LogUtil.mkRule(
+                (negate ? "NOT MATCH XPATH " : "MATCH XPATH ") + xPath + "='" + expected + "'"
+                , rule);
 
-            final DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-            if (!namespaces.keySet().isEmpty()) {
-                dbf.setNamespaceAware(true);
-            }
-
-            final XPathFactory xPathFactory = new net.sf.saxon.xpath.XPathFactoryImpl();
-            final XPath xpath = xPathFactory.newXPath();
-            final DocumentBuilder documentBuilder = dbf.newDocumentBuilder();
-            final Document doc = documentBuilder.parse(new ByteArrayInputStream(transformationOutput));
-            if (!namespaces.keySet().isEmpty()) {
-                xpath.setNamespaceContext(new NamespaceContext() {
-                    @Override
-                    public String getNamespaceURI(String prefix) {
-                        if (namespaces.containsKey(prefix)) {
-                            return namespaces.get(prefix);
-                        }
-                        return null;
-                    }
-
-                    @Override
-                    public String getPrefix(String namespaceURI) {
-                        return null;
-                    }
-
-                    @Override
-                    public Iterator getPrefixes(String namespaceURI) {
-                        return null;
-                    }
-                });
-            }
-
-            final XPathExpression expression = xpath.compile(xPath);
-
-            final String stringResult = expression.evaluate(doc).trim();
+        final String stringResult = XpathUtil.getXpathResult(xPath, namespaces, transformationOutput);
             if (stringResult.equals(expected) == negate) {
                 errors.add(new AssertionError(String.format(
                         report + System.lineSeparator() +
@@ -131,9 +90,9 @@ public class TransformAssertWithTransformResult {
                         , xPath, negate ? " NOT " : " ", expected, stringResult
                 )));
 
-                indent(String.format("%s (%s)", report, FAILED), 2, logBack);
+                LogUtil.indent(String.format("%s (%s)", report, FAILED), 2, logBack);
             } else {
-                indent(String.format("%s (%s)", report, OK), 2, logBack);
+                LogUtil.indent(String.format("%s (%s)", report, OK), 2, logBack);
             }
 
 
@@ -163,11 +122,11 @@ public class TransformAssertWithTransformResult {
         final Schema schema = schemaFactory.newSchema(xsdSource);
         final Validator validator = schema.newValidator();
 
-        final String report = mkRule("VALIDATE AGAINST XSD: " + xsd.getAbsolutePath(), rule);
+        final String report = LogUtil.mkRule("VALIDATE AGAINST XSD: " + xsd.getAbsolutePath(), rule);
 
         try {
             validator.validate(xmlSource);
-            indent(String.format("%s (%s)", report, OK), 2, logBack);
+            LogUtil.indent(String.format("%s (%s)", report, OK), 2, logBack);
         } catch (Exception e) {
             errors.add(new AssertionError(String.format(
                     report + System.lineSeparator() +
@@ -176,7 +135,7 @@ public class TransformAssertWithTransformResult {
                     xsd.getAbsolutePath(),
                     e.getMessage()
             )));
-            indent(String.format("%s (%s)", report, FAILED), 2, logBack);
+            LogUtil.indent(String.format("%s (%s)", report, FAILED), 2, logBack);
         }
         return this;
     }
@@ -215,14 +174,14 @@ public class TransformAssertWithTransformResult {
 
         final Consumer<String> outConsumer = outputConsumer == null ? logBack : outputConsumer;
         final int indent = outputConsumer == null ? 2 : 0;
-        indent(new String(transformationOutput, StandardCharsets.UTF_8.name()), indent, outConsumer);
+        LogUtil.indent(new String(transformationOutput, StandardCharsets.UTF_8.name()), indent, outConsumer);
 
         logBack.accept(String.format("===================================================%s", System.lineSeparator()));
 
         if (listXsltWarnings && !errorsAndWarnings.isEmpty()) {
             logBack.accept("XSLT WARNINGS:");
             for (TransformerException ex : errorsAndWarnings) {
-                indent(ex.getMessage(), 2, logBack);
+                LogUtil.indent(ex.getMessage(), 2, logBack);
             }
             logBack.accept(String.format("===================================================%s", System.lineSeparator()));
         }
@@ -231,7 +190,7 @@ public class TransformAssertWithTransformResult {
         if (!errors.isEmpty()) {
             logBack.accept("FAILURES:");
             for (AssertionError assertionError : errors) {
-                indent(assertionError.getMessage(), 2, logBack);
+                LogUtil.indent(assertionError.getMessage(), 2, logBack);
             }
             logBack.accept(String.format("===================================================%s", System.lineSeparator()));
 
@@ -244,12 +203,12 @@ public class TransformAssertWithTransformResult {
     private void initialize(TransformAssertWithTransformer transformAssertWithTransformer) {
 
         logBack.accept("DESCRIBE:");
-        indent(transformAssertWithTransformer.getXsltPath() != null
+        LogUtil.indent(transformAssertWithTransformer.getXsltPath() != null
                 ? transformAssertWithTransformer.getXsltPath()
                 : transformAssertWithTransformer.getXsltString(), 2, logBack);
 
         logBack.accept(System.lineSeparator() + "WHEN TRANSFORMING:");
-        indent(transformAssertWithTransformer.getSourceXmlPath() != null
+        LogUtil.indent(transformAssertWithTransformer.getSourceXmlPath() != null
                 ? transformAssertWithTransformer.getSourceXmlPath()
                 : transformAssertWithTransformer.getSourceXmlString(), 2, logBack);
 
@@ -257,18 +216,4 @@ public class TransformAssertWithTransformResult {
     }
 
 
-    private String mkRule(String defaultRule, String[] rule) {
-        return rule.length > 0 ? rule[0] : defaultRule;
-    }
-
-    private void indent(String lines, int whitespace, Consumer<String> logBack) {
-
-        for(String line : lines.split("\\r\\n|\\n|\\r")) {
-            final StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < whitespace; i++) {
-                sb.append(" ");
-            }
-            logBack.accept(sb.append(line).toString());
-        }
-    }
 }

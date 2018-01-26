@@ -52,8 +52,29 @@ public class TransformAssertWithTransformer {
         return transform(reader, parameters);
     }
 
+    public TransformCompareWithTransformers whenComparingTo(File xsltFile) throws FileNotFoundException, UnsupportedEncodingException {
+        final TransformAssertWithTransformer transformAssertWithTransformer =
+                new TransformAssertWithTransformer(logBack, transformationOutput);
+        final Reader reader = new InputStreamReader(new FileInputStream(xsltFile), StandardCharsets.UTF_8.name());
 
-    private TransformAssertWithTransformResult transform(Reader reader, String... parameters) throws TransformerException {
+        transformAssertWithTransformer.setXsltSource(new StreamSource(reader));
+        transformAssertWithTransformer.setXsltPath(xsltFile.getAbsolutePath());
+        return new TransformCompareWithTransformers(this, transformAssertWithTransformer);
+    }
+
+    public TransformCompareWithTransformers whenComparingTo(String xslt) throws UnsupportedEncodingException {
+
+        final TransformAssertWithTransformer transformAssertWithTransformer =
+                new TransformAssertWithTransformer(logBack, transformationOutput);
+        final Reader reader = new InputStreamReader(new ByteArrayInputStream(xslt.getBytes()), StandardCharsets.UTF_8.name());
+
+        transformAssertWithTransformer.setXsltSource(new StreamSource(reader));
+        transformAssertWithTransformer.setXsltString(xslt);
+
+        return new TransformCompareWithTransformers(this, transformAssertWithTransformer);
+    }
+
+    byte[] getTransformResult(Reader reader, String... parameters) throws TransformerException {
         assert parameters.length % 2 == 0;
 
         final StreamSource sourceXml = new StreamSource(reader);
@@ -85,8 +106,12 @@ public class TransformAssertWithTransformer {
             }
         });
         transformer.transform(sourceXml, new StreamResult(out));
+        return out.toByteArray();
+    }
 
-        return new TransformAssertWithTransformResult(this, out.toByteArray());
+    private TransformAssertWithTransformResult transform(Reader reader, String... parameters) throws TransformerException {
+        return new TransformAssertWithTransformResult(this,
+                getTransformResult(reader, parameters));
     }
 
     private Templates getTemplates() throws TransformerConfigurationException {
