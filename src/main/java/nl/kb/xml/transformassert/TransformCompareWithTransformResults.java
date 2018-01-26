@@ -19,7 +19,7 @@ import static nl.kb.xml.transformassert.LogUtil.mkRule;
 import static nl.kb.xml.transformassert.ResultStatus.FAILED;
 import static nl.kb.xml.transformassert.ResultStatus.OK;
 
-public class TransformCompareWithTransformResults {
+public class TransformCompareWithTransformResults implements TransformResults {
     private final TransformCompareWithTransformers transformCompareWithTransformers;
     private final byte[] resultFromBaseline;
     private final byte[] resultUnderTest;
@@ -127,10 +127,26 @@ public class TransformCompareWithTransformResults {
         return this;
     }
 
+    public TransformCompareWithTransformResults andUsingNamespace(String key, String value) {
+        return usingNamespace(key, value);
+    }
 
-    public TransformCompareWithTransformResults hasMatchingXPathResultsFor(String xPath, String... rule) throws ParserConfigurationException, SAXException, XPathExpressionException, IOException {
-        final String stringResult = XpathUtil.getXpathResult(xPath, namespaces, resultUnderTest);
-        final String expected = XpathUtil.getXpathResult(xPath, namespaces, resultFromBaseline);
+    public TransformCompareWithTransformResults hasMatchingXPathResultsFor(String xPath, String... rule) throws ParserConfigurationException, XPathExpressionException, IOException {
+        final String stringResult;
+        final String expected;
+        try {
+            stringResult = XpathUtil.getXpathResult(xPath, namespaces, resultUnderTest);
+        } catch (SAXException e) {
+            errors.add(new AssertionError("Got unparsable XML result from xslt under test"));
+            return this;
+        }
+        try {
+            expected = XpathUtil.getXpathResult(xPath, namespaces, resultFromBaseline);
+        } catch (SAXException e) {
+            errors.add(new AssertionError("Got unparsable XML result from baseline xslt"));
+            return this;
+        }
+
 
         final String report = LogUtil.mkRule(
                 "MATCH XPATH " + xPath + "='" + expected + "'"

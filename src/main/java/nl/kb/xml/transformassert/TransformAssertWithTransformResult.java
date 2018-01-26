@@ -29,7 +29,7 @@ import java.util.function.Consumer;
 import static nl.kb.xml.transformassert.ResultStatus.FAILED;
 import static nl.kb.xml.transformassert.ResultStatus.OK;
 
-public class TransformAssertWithTransformResult {
+public class TransformAssertWithTransformResult implements TransformResults {
 
     private final byte[] transformationOutput;
     private final Map<String, String> namespaces = new HashMap<>();
@@ -75,13 +75,14 @@ public class TransformAssertWithTransformResult {
     }
 
     private TransformAssertWithTransformResult matchXPath(String xPath, String expected, boolean negate, String... rule)
-            throws XPathExpressionException, ParserConfigurationException, IOException, SAXException {
+            throws XPathExpressionException, ParserConfigurationException, IOException {
 
         final String report = LogUtil.mkRule(
                 (negate ? "NOT MATCH XPATH " : "MATCH XPATH ") + xPath + "='" + expected + "'"
                 , rule);
 
-        final String stringResult = XpathUtil.getXpathResult(xPath, namespaces, transformationOutput);
+        try {
+            final String stringResult = XpathUtil.getXpathResult(xPath, namespaces, transformationOutput);
             if (stringResult.equals(expected) == negate) {
                 errors.add(new AssertionError(String.format(
                         report + System.lineSeparator() +
@@ -97,17 +98,21 @@ public class TransformAssertWithTransformResult {
 
 
             return this;
+        } catch (SAXException e) {
+            errors.add(new AssertionError("Got unparsable XML output from stylesheet"));
+            return this;
+        }
     }
 
 
     public TransformAssertWithTransformResult hasXpathContaining(String xPath, String expected, String... rule)
-            throws XPathExpressionException, ParserConfigurationException, IOException, SAXException {
+            throws XPathExpressionException, ParserConfigurationException, IOException {
 
         return matchXPath(xPath, expected, false, rule);
     }
 
     public TransformAssertWithTransformResult doesNothaveXpathContaining(String xPath, String expected, String... rule)
-            throws XPathExpressionException, ParserConfigurationException, IOException, SAXException {
+            throws XPathExpressionException, ParserConfigurationException, IOException {
 
         return matchXPath(xPath, expected, true, rule);
     }
