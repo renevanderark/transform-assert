@@ -148,11 +148,12 @@ public class TransformCompareWithTransformResults implements TransformResults {
         }
 
 
-        final String report = LogUtil.mkRule(
-                "MATCH XPATH " + xPath + "='" + expected + "'"
-                , rule);
 
         for (String expectedResult : expected) {
+            final String report = LogUtil.mkRule(
+                    "MATCH XPATH " + xPath + "='" + expectedResult + "'"
+                    , rule);
+
             if (!stringResults.contains(expectedResult)) {
                 final String actual = stringResults.size() == 1
                         ? stringResults.get(0)
