@@ -132,10 +132,10 @@ public class TransformCompareWithTransformResults implements TransformResults {
     }
 
     public TransformCompareWithTransformResults hasMatchingXPathResultsFor(String xPath, String... rule) throws ParserConfigurationException, XPathExpressionException, IOException {
-        final String stringResult;
-        final String expected;
+        final List<String> stringResults;
+        final List<String> expected;
         try {
-            stringResult = XpathUtil.getXpathResult(xPath, namespaces, resultUnderTest);
+            stringResults = XpathUtil.getXpathResult(xPath, namespaces, resultUnderTest);
         } catch (SAXException e) {
             errors.add(new AssertionError("Got unparsable XML result from xslt under test"));
             return this;
@@ -152,19 +152,25 @@ public class TransformCompareWithTransformResults implements TransformResults {
                 "MATCH XPATH " + xPath + "='" + expected + "'"
                 , rule);
 
-        if (!stringResult.equals(expected)) {
-            errors.add(new AssertionError(String.format(
-                    report + System.lineSeparator() +
-                            "  Expected xpath %s to match: '%s'" + System.lineSeparator() +
-                            "  But got: '%s'" + System.lineSeparator()
-                    , xPath, expected, stringResult
-            )));
+        for (String expectedResult : expected) {
+            if (!stringResults.contains(expectedResult)) {
+                final String actual = stringResults.size() == 1
+                        ? stringResults.get(0)
+                        : stringResults.size() == 0
+                        ? ""
+                        : "any of: " + stringResults;
+                errors.add(new AssertionError(String.format(
+                        report + System.lineSeparator() +
+                                "  Expected xpath %s to match: '%s'" + System.lineSeparator() +
+                                "  But got: '%s'" + System.lineSeparator()
+                        , xPath, expected, actual
+                )));
 
-            LogUtil.indent(String.format("%s (%s)", report, FAILED), 2, logBack);
-        } else {
-            LogUtil.indent(String.format("%s (%s)", report, OK), 2, logBack);
+                LogUtil.indent(String.format("%s (%s)", report, FAILED), 2, logBack);
+            } else {
+                LogUtil.indent(String.format("%s (%s)", report, OK), 2, logBack);
+            }
         }
-
 
         return this;
     }

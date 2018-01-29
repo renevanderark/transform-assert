@@ -82,13 +82,18 @@ public class TransformAssertWithTransformResult implements TransformResults {
                 , rule);
 
         try {
-            final String stringResult = XpathUtil.getXpathResult(xPath, namespaces, transformationOutput);
-            if (stringResult.equals(expected) == negate) {
+            final List<String> stringResult = XpathUtil.getXpathResult(xPath, namespaces, transformationOutput);
+            if (stringResult.contains(expected) == negate) {
+                final String actual = stringResult.size() == 1
+                        ? stringResult.get(0)
+                        : stringResult.size() == 0
+                        ? ""
+                        : "any of: " + stringResult;
                 errors.add(new AssertionError(String.format(
                         report + System.lineSeparator() +
                                 "  Expected xpath %s%sto match: '%s'" + System.lineSeparator() +
                                 "  But got: '%s'" + System.lineSeparator()
-                        , xPath, negate ? " NOT " : " ", expected, stringResult
+                        , xPath, negate ? " NOT " : " ", expected, actual
                 )));
 
                 LogUtil.indent(String.format("%s (%s)", report, FAILED), 2, logBack);
