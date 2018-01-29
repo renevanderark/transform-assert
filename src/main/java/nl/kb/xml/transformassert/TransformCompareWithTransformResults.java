@@ -159,11 +159,14 @@ public class TransformCompareWithTransformResults implements TransformResults {
                         : stringResults.size() == 0
                         ? ""
                         : "any of: " + stringResults;
-                errors.add(new AssertionError(String.format(
-                        report + System.lineSeparator() +
+
+
+
+                errors.add(new AssertionError(report + String.format(
+                        System.lineSeparator() +
                                 "  Expected xpath %s to match: '%s'" + System.lineSeparator() +
                                 "  But got: '%s'" + System.lineSeparator()
-                        , xPath, expected, actual
+                        , xPath, expectedResult, actual
                 )));
 
                 LogUtil.indent(String.format("%s (%s)", report, FAILED), 2, logBack);
