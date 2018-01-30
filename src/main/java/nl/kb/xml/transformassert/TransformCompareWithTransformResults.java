@@ -148,6 +148,15 @@ public class TransformCompareWithTransformResults implements TransformResults {
         }
 
 
+        if (stringResults.size() != expected.size()) {
+            errors.add(new AssertionError("MATCH XPATH " + xPath + String.format(
+                    System.lineSeparator() +
+                            "  Expected xpath %s to result in: %d items" + System.lineSeparator() +
+                            "  But got: %d items" + System.lineSeparator()
+                    , xPath, expected.size(), stringResults.size()
+            )));
+        }
+
 
         for (String expectedResult : expected) {
             final String report = LogUtil.mkRule(
