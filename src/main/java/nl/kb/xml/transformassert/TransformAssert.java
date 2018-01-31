@@ -4,7 +4,6 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.stream.StreamSource;
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -18,9 +17,8 @@ public class TransformAssert {
             throws FileNotFoundException, UnsupportedEncodingException, TransformerException {
         final TransformAssertWithTransformer transformAssertWithTransformer =
                 new TransformAssertWithTransformer(logBack, transformationOutput);
-        final Reader reader = new InputStreamReader(new FileInputStream(xsltFile), StandardCharsets.UTF_8.name());
 
-        transformAssertWithTransformer.setXsltSource(new StreamSource(reader));
+        transformAssertWithTransformer.setXsltSource(new StreamSource(xsltFile));
         transformAssertWithTransformer.setXsltPath(xsltFile.getAbsolutePath());
 
         return transformAssertWithTransformer;

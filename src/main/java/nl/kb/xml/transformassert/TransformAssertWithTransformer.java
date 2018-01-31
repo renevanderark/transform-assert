@@ -32,7 +32,6 @@ public class TransformAssertWithTransformer {
     private String xsltString;
     private StreamSource xsltSource;
     private Templates templates;
-    private RelativePathUriResolver uriResolver;
 
     TransformAssertWithTransformer(Consumer<String> logBack, Consumer<String> transformationOutput) {
         this.logBack = logBack;
@@ -82,9 +81,6 @@ public class TransformAssertWithTransformer {
         final Transformer transformer = templates.newTransformer();
         final ByteArrayOutputStream out = new ByteArrayOutputStream();
 
-        if (uriResolver != null) {
-            transformer.setURIResolver(this.uriResolver);
-        }
         for (int i = 0; i < parameters.length; i += 2) {
             transformer.setParameter(parameters[i], parameters[i + 1]);
         }
@@ -117,6 +113,7 @@ public class TransformAssertWithTransformer {
     private Templates getTemplates() throws TransformerConfigurationException {
         if (this.templates == null) {
             final TransformerFactory factory = new net.sf.saxon.TransformerFactoryImpl();
+/*
             if (xsltPath != null) {
                 final String xsltDir = xsltPath
                         .replace(System.getProperty("user.dir"), "")
@@ -126,6 +123,7 @@ public class TransformAssertWithTransformer {
                 uriResolver = new RelativePathUriResolver(xsltDir);
                 factory.setURIResolver(uriResolver);
             }
+*/
 
             templates = factory.newTemplates(xsltSource);
             return templates;
