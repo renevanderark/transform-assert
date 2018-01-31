@@ -148,7 +148,7 @@ public class TransformCompareWithTransformResults implements TransformResults {
         }
 
 
-        if (stringResults.size() != expected.size()) {
+        if (stringResults.size() > expected.size()) {
             errors.add(new AssertionError("MATCH XPATH " + xPath + String.format(
                     System.lineSeparator() +
                             "  Expected xpath %s to result in: %d items" + System.lineSeparator() +
