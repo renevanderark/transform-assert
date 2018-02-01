@@ -113,6 +113,54 @@ OUTPUT:
 ===================================================
 ```
 
+### Comparing output of two stylesheets (hasMatchingXPathResultsFor)
+
+When refactoring, or rewrite a stylesheet it is useful to assert that the results of the
+new version are equal to the original. 
+
+```java
+TransformAssert.describe(new File("./src/test/resources/5.xslt"))
+        .whenComparingTo(new File("./src/test/resources/3.xslt"))
+        .whenTransforming("<root><foo>bar</foo></root>")
+        .hasMatchingXPathResultsFor("/output/bar[@attrib='bar']/text()")
+        .hasMatchingXPathResultsFor("/output/foo/text()")
+        .evaluate();
+```
+
+Results in
+
+```
+DESCRIBE:
+  ./src/test/resources/5.xslt
+WHEN COMPARING TO:
+  ./src/test/resources/3.xslt
+  
+WHEN TRANSFORMING:
+  <root><foo>bar</foo></root>
+
+IT SHOULD:
+  MATCH XPATH /output/bar[@attrib='bar']/text()='bar' (FAILED)
+  MATCH XPATH /output/foo/text()='foo' (FAILED)
+
+OUTPUT:
+  <?xml version="1.0" encoding="UTF-8"?>
+  <output>
+     <one>bar</one>
+     <two/>
+     <two/>
+  </output>
+===================================================
+
+FAILURES:
+  MATCH XPATH /output/bar[@attrib='bar']/text()='bar'
+    Expected xpath /output/bar[@attrib='bar']/text() to match: 'bar'
+    But got: ''
+  MATCH XPATH /output/foo/text()='foo'
+    Expected xpath /output/foo/text() to match: 'foo'
+    But got: ''
+===================================================
+```
+
 ### Validating against XSD (validatesAgainstXSD)
 
 ```java
