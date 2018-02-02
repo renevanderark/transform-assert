@@ -64,10 +64,19 @@ public class TransformCompareWithTransformResults implements TransformResults {
 
 
     public void evaluate() throws UnsupportedEncodingException {
-        evaluate(false);
+        evaluate(false, null);
     }
 
+    @Override
     public void evaluate(boolean listXsltWarnings) throws UnsupportedEncodingException {
+        evaluate(listXsltWarnings, null);
+    }
+
+    public void evaluate(Consumer<String> failureConsumer) throws UnsupportedEncodingException {
+        evaluate(false, failureConsumer);
+    }
+
+    public void evaluate(boolean listXsltWarnings, Consumer<String> failureConsumer) throws UnsupportedEncodingException {
         if (outputConsumer == null) {
             logBack.accept(System.lineSeparator() + "OUTPUT:");
         }
@@ -93,7 +102,13 @@ public class TransformCompareWithTransformResults implements TransformResults {
             }
             logBack.accept(String.format("===================================================%s", System.lineSeparator()));
 
-            throw errors.get(0);
+            if (failureConsumer != null) {
+                for (AssertionError assertionError : errors) {
+                    failureConsumer.accept(assertionError.getMessage());
+                }
+            } else {
+                throw errors.get(0);
+            }
         }
 
     }

@@ -174,10 +174,21 @@ public class TransformAssertWithTransformResult implements TransformResults {
     }
 
     public void evaluate() throws UnsupportedEncodingException {
-        evaluate(false);
+        evaluate(false, null);
     }
 
+    @Override
+    public void evaluate(Consumer<String> failureConsumer) throws UnsupportedEncodingException {
+        evaluate(false, failureConsumer);
+
+    }
+
+    @Override
     public void evaluate(boolean listXsltWarnings) throws UnsupportedEncodingException {
+        evaluate(listXsltWarnings, null);
+    }
+
+    public void evaluate(boolean listXsltWarnings, Consumer<String> failureConsumer) throws UnsupportedEncodingException {
         if (outputConsumer == null) {
             logBack.accept(System.lineSeparator() + "OUTPUT:");
         }
