@@ -1,5 +1,6 @@
 package nl.kb.xml.transformassert;
 
+import net.sf.saxon.xpath.XPathFactoryImpl;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
@@ -12,25 +13,47 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-class XpathUtil {
-    static List<String> getXpathResult(String xPath, Map<String, String> namespaces, byte[] transformationOutput) throws ParserConfigurationException, SAXException, IOException, XPathExpressionException {
-        final DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-        if (!namespaces.keySet().isEmpty()) {
-            dbf.setNamespaceAware(true);
-        }
+class XpathEvaluator {
+    private static final DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+    private final byte[] transformationOutput;
+    private final Map<String, String> namespaces = new HashMap<>();
+    private Document doc = null;
+    private final XPathFactoryImpl xPathFactory;
 
-        final XPathFactory xPathFactory = new net.sf.saxon.xpath.XPathFactoryImpl();
+    static {
+        dbf.setNamespaceAware(true);
+    }
+
+    XpathEvaluator(byte[] transformationOutput)  {
+        this.xPathFactory = new XPathFactoryImpl();
+        this.transformationOutput = transformationOutput;
+
+    }
+
+    void loadDocument() throws IOException, SAXException, ParserConfigurationException {
+        if (doc == null) {
+            final DocumentBuilder documentBuilder = dbf.newDocumentBuilder();
+            doc = documentBuilder.parse(new ByteArrayInputStream(transformationOutput));
+        }
+    }
+
+    void addNamespace(String key, String value) {
+        namespaces.put(key, value);
+    }
+
+    List<String> getXpathResult(String xPath) throws XPathExpressionException {
+
         final XPath xpath = xPathFactory.newXPath();
-        final DocumentBuilder documentBuilder = dbf.newDocumentBuilder();
-        final Document doc = documentBuilder.parse(new ByteArrayInputStream(transformationOutput));
+
+
         if (!namespaces.keySet().isEmpty()) {
             xpath.setNamespaceContext(new NamespaceContext() {
                 @Override

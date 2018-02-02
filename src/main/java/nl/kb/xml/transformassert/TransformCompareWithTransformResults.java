@@ -9,9 +9,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Consumer;
 
 import static nl.kb.xml.transformassert.LogUtil.indent;
@@ -20,27 +18,27 @@ import static nl.kb.xml.transformassert.ResultStatus.FAILED;
 import static nl.kb.xml.transformassert.ResultStatus.OK;
 
 public class TransformCompareWithTransformResults implements TransformResults {
-    private final TransformCompareWithTransformers transformCompareWithTransformers;
     private final byte[] resultFromBaseline;
     private final byte[] resultUnderTest;
     private final Consumer<String> logBack;
     private final Consumer<String> outputConsumer;
     private final List<TransformerException> errorsAndWarnings;
+    private XpathEvaluator baselineEvaluator;
+    private XpathEvaluator resultEvaluator;
     private List<AssertionError> errors = new ArrayList<>();
-    private Map<String, String> namespaces = new HashMap<>();
 
 
     public TransformCompareWithTransformResults(TransformCompareWithTransformers transformCompareWithTransformers,
-                                                byte[] resultFromBaseline, byte[] resultUnderTest) {
+                                                byte[] resultFromBaseline, byte[] resultUnderTest)  {
 
-        this.transformCompareWithTransformers = transformCompareWithTransformers;
         this.resultFromBaseline = resultFromBaseline;
         this.resultUnderTest = resultUnderTest;
 
         this.logBack = transformCompareWithTransformers.getLogBack();
         this.outputConsumer = transformCompareWithTransformers.getTransformationOutput();
         this.errorsAndWarnings = transformCompareWithTransformers.getErrorsAndWarnings();
-
+        baselineEvaluator = new XpathEvaluator(resultFromBaseline);
+        resultEvaluator = new XpathEvaluator(resultUnderTest);
         initialize(transformCompareWithTransformers);
 
     }
@@ -123,7 +121,8 @@ public class TransformCompareWithTransformResults implements TransformResults {
 
 
     public TransformCompareWithTransformResults usingNamespace(String key, String value) {
-        this.namespaces.put(key, value);
+        resultEvaluator.addNamespace(key, value);
+        baselineEvaluator.addNamespace(key, value);
         return this;
     }
 
@@ -131,21 +130,26 @@ public class TransformCompareWithTransformResults implements TransformResults {
         return usingNamespace(key, value);
     }
 
-    public TransformCompareWithTransformResults hasMatchingXPathResultsFor(String xPath, String... rule) throws ParserConfigurationException, XPathExpressionException, IOException {
+    public TransformCompareWithTransformResults hasMatchingXPathResultsFor(String xPath, String... rule) throws XPathExpressionException {
         final List<String> stringResults;
         final List<String> expected;
+
         try {
-            stringResults = XpathUtil.getXpathResult(xPath, namespaces, resultUnderTest);
-        } catch (SAXException e) {
-            errors.add(new AssertionError("Got unparsable XML result from xslt under test"));
+            baselineEvaluator.loadDocument();
+        } catch (SAXException | IOException | ParserConfigurationException e) {
+            errors.add(new AssertionError("Got unparsable XML output from baseline stylesheet"));
             return this;
         }
+
         try {
-            expected = XpathUtil.getXpathResult(xPath, namespaces, resultFromBaseline);
-        } catch (SAXException e) {
-            errors.add(new AssertionError("Got unparsable XML result from baseline xslt"));
+            resultEvaluator.loadDocument();
+        } catch (SAXException | IOException | ParserConfigurationException e) {
+            errors.add(new AssertionError("Got unparsable XML output from stylesheet under test"));
             return this;
         }
+
+        stringResults = resultEvaluator.getXpathResult(xPath);
+        expected = baselineEvaluator.getXpathResult(xPath);
 
 
         if (stringResults.size() > expected.size()) {

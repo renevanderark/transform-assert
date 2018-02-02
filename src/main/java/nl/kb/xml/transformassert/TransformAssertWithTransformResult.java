@@ -21,9 +21,7 @@ import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Consumer;
 
 import static nl.kb.xml.transformassert.ResultStatus.FAILED;
@@ -32,11 +30,11 @@ import static nl.kb.xml.transformassert.ResultStatus.OK;
 public class TransformAssertWithTransformResult implements TransformResults {
 
     private final byte[] transformationOutput;
-    private final Map<String, String> namespaces = new HashMap<>();
     private final List<AssertionError> errors = new ArrayList<>();
     private final Consumer<String> logBack;
     private final Consumer<String> outputConsumer;
     private final List<TransformerException> errorsAndWarnings;
+    private final XpathEvaluator xpathEvaluator;
 
 
     TransformAssertWithTransformResult(TransformAssertWithTransformer transformAssertWithTransformer, byte[] transformationOutput) {
@@ -44,12 +42,13 @@ public class TransformAssertWithTransformResult implements TransformResults {
         this.logBack = transformAssertWithTransformer.getLogBack();
         this.outputConsumer = transformAssertWithTransformer.getTransformationOutput();
         this.errorsAndWarnings = transformAssertWithTransformer.getErrorsAndWarnings();
+        xpathEvaluator = new XpathEvaluator(transformationOutput);
         initialize(transformAssertWithTransformer);
     }
 
 
     public TransformAssertWithTransformResult usingNamespace(String key, String value) {
-        this.namespaces.put(key, value);
+        xpathEvaluator.addNamespace(key, value);
         return this;
     }
 
@@ -75,38 +74,39 @@ public class TransformAssertWithTransformResult implements TransformResults {
     }
 
     private TransformAssertWithTransformResult matchXPath(String xPath, String expected, boolean negate, String... rule)
-            throws XPathExpressionException, ParserConfigurationException, IOException {
+            throws XPathExpressionException {
 
         final String report = LogUtil.mkRule(
                 (negate ? "NOT MATCH XPATH " : "MATCH XPATH ") + xPath + "='" + expected + "'"
                 , rule);
-
         try {
-            final List<String> stringResult = XpathUtil.getXpathResult(xPath, namespaces, transformationOutput);
-            if (stringResult.contains(expected) == negate) {
-                final String actual = stringResult.size() == 1
-                        ? stringResult.get(0)
-                        : stringResult.size() == 0
-                        ? ""
-                        : "any of: " + stringResult;
-                errors.add(new AssertionError(String.format(
-                        report + System.lineSeparator() +
-                                "  Expected xpath %s%sto match: '%s'" + System.lineSeparator() +
-                                "  But got: '%s'" + System.lineSeparator()
-                        , xPath, negate ? " NOT " : " ", expected, actual
-                )));
-
-                LogUtil.indent(String.format("%s (%s)", report, FAILED), 2, logBack);
-            } else {
-                LogUtil.indent(String.format("%s (%s)", report, OK), 2, logBack);
-            }
-
-
-            return this;
-        } catch (SAXException e) {
+            xpathEvaluator.loadDocument();
+        } catch (IOException | ParserConfigurationException | SAXException e) {
             errors.add(new AssertionError("Got unparsable XML output from stylesheet"));
             return this;
         }
+
+        final List<String> stringResult = xpathEvaluator.getXpathResult(xPath);
+        if (stringResult.contains(expected) == negate) {
+            final String actual = stringResult.size() == 1
+                    ? stringResult.get(0)
+                    : stringResult.size() == 0
+                    ? ""
+                    : "any of: " + stringResult;
+            errors.add(new AssertionError(String.format(
+                    report + System.lineSeparator() +
+                            "  Expected xpath %s%sto match: '%s'" + System.lineSeparator() +
+                            "  But got: '%s'" + System.lineSeparator()
+                    , xPath, negate ? " NOT " : " ", expected, actual
+            )));
+
+            LogUtil.indent(String.format("%s (%s)", report, FAILED), 2, logBack);
+        } else {
+            LogUtil.indent(String.format("%s (%s)", report, OK), 2, logBack);
+        }
+
+
+        return this;
     }
 
 
