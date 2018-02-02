@@ -51,7 +51,7 @@ public class TransformAssertWithTransformer {
         return transform(reader, parameters);
     }
 
-    public TransformCompareWithTransformers whenComparingTo(File xsltFile) throws FileNotFoundException, UnsupportedEncodingException {
+    public TransformCompareWithTransformers whenComparingTo(File xsltFile) throws FileNotFoundException, UnsupportedEncodingException, TransformerConfigurationException {
         final TransformAssertWithTransformer transformAssertWithTransformer =
                 new TransformAssertWithTransformer(logBack, transformationOutput);
         final Reader reader = new InputStreamReader(new FileInputStream(xsltFile), StandardCharsets.UTF_8.name());
@@ -61,7 +61,7 @@ public class TransformAssertWithTransformer {
         return new TransformCompareWithTransformers(this, transformAssertWithTransformer);
     }
 
-    public TransformCompareWithTransformers whenComparingTo(String xslt) throws UnsupportedEncodingException {
+    public TransformCompareWithTransformers whenComparingTo(String xslt) throws UnsupportedEncodingException, TransformerConfigurationException {
 
         final TransformAssertWithTransformer transformAssertWithTransformer =
                 new TransformAssertWithTransformer(logBack, transformationOutput);
@@ -77,7 +77,6 @@ public class TransformAssertWithTransformer {
         assert parameters.length % 2 == 0;
 
         final StreamSource sourceXml = new StreamSource(reader);
-        final Templates templates = getTemplates();
         final Transformer transformer = templates.newTransformer();
         final ByteArrayOutputStream out = new ByteArrayOutputStream();
 
@@ -110,36 +109,22 @@ public class TransformAssertWithTransformer {
                 getTransformResult(reader, parameters));
     }
 
-    private Templates getTemplates() throws TransformerConfigurationException {
-        if (this.templates == null) {
-            final TransformerFactory factory = new net.sf.saxon.TransformerFactoryImpl();
-/*
-            if (xsltPath != null) {
-                final String xsltDir = xsltPath
-                        .replace(System.getProperty("user.dir"), "")
-                        .replaceAll("^[/\\\\]", "")
-                        .replaceAll("[^/\\\\]*$", "");
-
-                uriResolver = new RelativePathUriResolver(xsltDir);
-                factory.setURIResolver(uriResolver);
-            }
-*/
-
-            templates = factory.newTemplates(xsltSource);
-            return templates;
-        } else {
-            return templates;
-        }
+    private void getTemplates() throws TransformerConfigurationException {
+        final TransformerFactory factory = new net.sf.saxon.TransformerFactoryImpl();
+        templates = factory.newTemplates(xsltSource);
     }
 
 
 
-    void setXsltPath(String xsltPath) {
+    void setXsltPath(String xsltPath) throws TransformerConfigurationException {
+
         this.xsltPath = xsltPath;
+        getTemplates();
     }
 
-    void setXsltString(String xsltString) {
+    void setXsltString(String xsltString) throws TransformerConfigurationException {
         this.xsltString = xsltString;
+        getTemplates();
     }
 
     String getSourceXmlPath() {

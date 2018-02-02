@@ -274,8 +274,6 @@ public class TransformAssertTest {
                 .hasMatchingXPathResultsFor("/output/bar[@attrib='bar']/text()")
                 .hasMatchingXPathResultsFor("/output/foo/text()")
                 .evaluate();
-
-
     }
 
     @Test(expected = AssertionError.class)
