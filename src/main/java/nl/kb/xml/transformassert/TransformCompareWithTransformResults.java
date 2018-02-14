@@ -156,7 +156,8 @@ public class TransformCompareWithTransformResults implements TransformResults {
                 , rule);
 
         final Diff diff = DiffBuilder.compare(resultFromBaseline).withTest(resultUnderTest)
-                .withNodeMatcher(new DefaultNodeMatcher(ElementSelectors.byName))
+                .ignoreWhitespace()
+                .withNodeMatcher(new DefaultNodeMatcher(ElementSelectors.byNameAndText))
                 .checkForSimilar().build();
 
         if (diff.getDifferences().iterator().hasNext()) {
