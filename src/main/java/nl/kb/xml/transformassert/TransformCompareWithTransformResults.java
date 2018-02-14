@@ -1,6 +1,11 @@
 package nl.kb.xml.transformassert;
 
 import org.xml.sax.SAXException;
+import org.xmlunit.builder.DiffBuilder;
+import org.xmlunit.diff.DefaultNodeMatcher;
+import org.xmlunit.diff.Diff;
+import org.xmlunit.diff.Difference;
+import org.xmlunit.diff.ElementSelectors;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
@@ -143,6 +148,32 @@ public class TransformCompareWithTransformResults implements TransformResults {
 
     public TransformCompareWithTransformResults andUsingNamespace(String key, String value) {
         return usingNamespace(key, value);
+    }
+
+    public TransformCompareWithTransformResults outputsIdenticalXml(String... rule) {
+        final String report = LogUtil.mkRule(
+                "SEMANTICALLY EQUAL BASELINE OUPUT"
+                , rule);
+
+        final Diff diff = DiffBuilder.compare(resultFromBaseline).withTest(resultUnderTest)
+                .withNodeMatcher(new DefaultNodeMatcher(ElementSelectors.byName))
+                .checkForSimilar().build();
+
+        if (diff.getDifferences().iterator().hasNext()) {
+            LogUtil.indent(String.format("%s (%s)", report, FAILED), 2, logBack);
+        } else {
+            LogUtil.indent(String.format("%s (%s)", report, OK), 2, logBack);
+        }
+
+        for (Difference difference : diff.getDifferences()) {
+            errors.add(new AssertionError(report +
+                    System.lineSeparator() +
+                    difference
+            ));
+        }
+
+
+        return this;
     }
 
     public TransformCompareWithTransformResults hasMatchingXPathResultsFor(String xPath, String... rule) throws XPathExpressionException {

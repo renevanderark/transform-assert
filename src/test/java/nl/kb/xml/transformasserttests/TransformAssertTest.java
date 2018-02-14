@@ -296,4 +296,22 @@ public class TransformAssertTest {
                 .hasMatchingXPathResultsFor("/output/foo/text()")
                 .evaluate();
     }
+
+    @Test(expected = AssertionError.class)
+    public void throwsWhenThereAreSemanticDifferences() throws IOException, TransformerException, ParserConfigurationException, SAXException, XPathExpressionException {
+        describe(new File("./src/test/resources/7.xslt"))
+                .whenComparingTo(new File("./src/test/resources/3.xslt"))
+                .whenTransforming(XML)
+                .outputsIdenticalXml()
+                .evaluate();
+    }
+
+    @Test
+    public void doesNotthrowWhenThereOnlyDifferencesInOrdering() throws IOException, TransformerException, ParserConfigurationException, SAXException, XPathExpressionException {
+        describe(new File("./src/test/resources/8.xslt"))
+                .whenComparingTo(new File("./src/test/resources/3.xslt"))
+                .whenTransforming(XML)
+                .outputsIdenticalXml()
+                .evaluate();
+    }
 }
