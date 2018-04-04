@@ -46,6 +46,24 @@ public class TransformAssertWithTransformResult implements TransformResults {
         initialize(transformAssertWithTransformer);
     }
 
+    private TransformAssertWithTransformResult(byte[] xml, Consumer<String> logBack) {
+        transformationOutput = xml;
+        this.logBack = logBack;
+        outputConsumer = null;
+        errorsAndWarnings = new ArrayList<>();
+        xpathEvaluator = new XpathEvaluator(transformationOutput);
+        logBack.accept("DESCRIBING XML");
+        logBack.accept(System.lineSeparator() + "IT SHOULD:");
+    }
+
+    public static TransformAssertWithTransformResult describeXml(byte[] xml, Consumer<String> logBack) {
+        return new TransformAssertWithTransformResult(xml, logBack);
+    }
+
+    public static TransformAssertWithTransformResult describeXml(byte[] xml) {
+        return new TransformAssertWithTransformResult(xml, System.out::println);
+    }
+
 
     public TransformAssertWithTransformResult usingNamespace(String key, String value) {
         xpathEvaluator.addNamespace(key, value);

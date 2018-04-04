@@ -16,6 +16,7 @@ import java.util.List;
 
 import static java.util.stream.Collectors.toList;
 import static nl.kb.xml.transformassert.TransformAssert.describe;
+import static nl.kb.xml.transformassert.TransformAssertWithTransformResult.describeXml;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.core.Is.is;
@@ -312,6 +313,13 @@ public class TransformAssertTest {
                 .whenComparingTo(new File("./src/test/resources/3.xslt"))
                 .whenTransforming(XML)
                 .outputsIdenticalXml()
+                .evaluate();
+    }
+
+    @Test
+    public void describeXMLShouldWork() throws IOException, XPathExpressionException, ParserConfigurationException {
+        describeXml(XML.getBytes())
+                .hasXpathContaining("/root/foo/text()", "bar")
                 .evaluate();
     }
 }
