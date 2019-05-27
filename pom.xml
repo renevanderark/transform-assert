@@ -25,18 +25,6 @@
         </repository>
     </repositories>
 
-    <distributionManagement>
-        <repository>
-            <id>central</id>
-            <name>ARTI-JAVA-P100-releases</name>
-            <url>http://arti-java-p100/libs-release-local</url>
-        </repository>
-        <snapshotRepository>
-            <id>snapshots</id>
-            <name>ARTI-JAVA-P100-snapshots</name>
-            <url>http://arti-java-p100/libs-snapshot-local</url>
-        </snapshotRepository>
-    </distributionManagement>
 
     <properties>
         <jdk.version>1.8</jdk.version>
