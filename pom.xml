@@ -6,7 +6,7 @@
 
     <groupId>nl.kb.xml</groupId>
     <artifactId>transform-assert</artifactId>
-    <version>1.20</version>
+    <version>1.21-SNAPSHOT</version>
 
     <prerequisites>
         <maven>3.0</maven>
