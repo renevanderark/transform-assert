@@ -84,7 +84,7 @@ public class TransformAssertWithTransformer {
             transformer.setParameter(parameters[i], parameters[i + 1]);
         }
 
-        ((net.sf.saxon.Controller)transformer).setErrorListener(new ErrorListener() {
+        transformer.setErrorListener(new ErrorListener() {
             @Override
             public void warning(TransformerException exception) throws TransformerException {
                 errorsAndWarnings.add(exception);
