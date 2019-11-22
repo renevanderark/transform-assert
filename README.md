@@ -1,5 +1,7 @@
 # Transform Assert
 
+![build status master](https://travis-ci.org/renevanderark/transform-assert.svg?branch=master)
+
 This is library is used as a way to assert correctness of XSLT transformations.
 
 It supports the following assertion types:
