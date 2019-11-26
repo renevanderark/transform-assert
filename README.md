@@ -9,8 +9,7 @@ It supports the following assertion types:
 - String equality of output
 - Evaluate output XML using xpath expression
 - Validate output XML against an XSD file
-
-
+- Compare output XML of two stylesheets  
 
 ## Examples
 
@@ -199,6 +198,74 @@ FAILURES:
   node <one> wordt niet verwacht door deze XSD
     Expected output to validate against XSD: ./src/test/resources/2.xsd
     But got: cvc-complex-type.2.4.a: Invalid content was found starting with element 'one'. One of '{two}' is expected.
+===================================================
+```
+
+### Semantically compare output XML (experimentak)
+
+```java
+describe(new File("./src/test/resources/7.xslt"))
+        .whenComparingTo(new File("./src/test/resources/3.xslt"))
+        .whenTransforming(XML)
+        .outputsIdenticalXml()
+        .evaluate();
+```
+
+Results in
+
+```
+DESCRIBE:
+ ./src/test/resources/7.xslt
+WHEN COMPARING TO:
+  ./src/test/resources/3.xslt
+
+WHEN TRANSFORMING:
+  <root><foo>bar</foo></root>
+
+IT SHOULD:
+  SEMANTICALLY EQUAL BASELINE OUPUT (FAILED)
+
+OUTPUT:
+  <?xml version="1.0" encoding="UTF-8"?>
+  <output>
+     <foo>fooa</foo>
+     <bar attrib="bar">bar</bar>
+  </output>
+===================================================
+
+FAILURES:
+  SEMANTICALLY EQUAL BASELINE OUPUT
+  Expected child 'foo' but was 'null' - comparing <foo...> at /output[1]/foo[1] to <NULL> (DIFFERENT)
+  SEMANTICALLY EQUAL BASELINE OUPUT
+  Expected child 'null' but was 'foo' - comparing <NULL> to <foo...> at /output[1]/foo[1] (DIFFERENT)
+===================================================
+```
+
+### Listing transformation errors and warnings passed to Saxon errorListener
+
+```java
+describe(new File("./src/test/resources/9.xslt"), (str) -> { System.out.println(str); sb.append(str); })
+        .whenTransforming(XML)
+        .evaluate(true); // PASS true as argument to evaluate method!
+```
+
+Results in
+
+```
+DESCRIBE:
+  ./src/test/resources/9.xslt
+
+WHEN TRANSFORMING:
+  <root><foo>bar</foo></root>
+
+IT SHOULD:
+
+OUTPUT:
+  
+===================================================
+
+XSLT WARNINGS:
+  I/O error reported by XML parser processing file:./src/test/resources/notfound.xml: ./src/test/resources/notfound.xml (The system cannot find the file specified)
 ===================================================
 ```
 

@@ -249,6 +249,18 @@ public class TransformAssertTest {
     }
 
     @Test
+    public void warnsWhenExternalFileIsNotResolved() throws IOException, TransformerException {
+        final StringBuilder sb = new StringBuilder();
+
+        describe(new File("./src/test/resources/9.xslt"), (str) -> { System.out.println(str); sb.append(str); })
+                .whenTransforming(XML)
+                .evaluate(true);
+
+        assertThat(sb.toString(), containsString("XSLT WARNINGS"));
+
+    }
+
+    @Test
     public void supportsCustomOutputConsumer() throws UnsupportedEncodingException, TransformerException, FileNotFoundException {
         final List<String> out = new ArrayList<>();
         describe(XSLT, System.out::println, out::add)
