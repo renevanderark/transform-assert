@@ -52,8 +52,8 @@ public class TransformCompareWithTransformers {
 
             return new TransformCompareWithTransformResults(this, resultFromBaseline, resultUnderTest);
         } finally {
-            try {  if (reader1 != null) { reader1.close(); } } catch (IOException e) { throw new IllegalStateException(e); }
-            try {  if (reader2 != null) { reader2.close(); } } catch (IOException e) { throw new IllegalStateException(e); }
+            try {  if (reader1 != null) { reader1.close(); } } catch (IOException ignore) {  }
+            try {  if (reader2 != null) { reader2.close(); } } catch (IOException ignore) {  }
         }
     }
 
@@ -79,8 +79,8 @@ public class TransformCompareWithTransformers {
 
             return new TransformCompareWithTransformResults(this, resultFromBaseline, resultUnderTest);
         } finally {
-            try {  if (reader1 != null) { reader1.close(); } } catch (IOException e) { e.printStackTrace(); }
-            try {  if (reader2 != null) { reader2.close(); } } catch (IOException e) { e.printStackTrace(); }
+            try {  if (reader1 != null) { reader1.close(); } } catch (IOException ignore) {  }
+            try {  if (reader2 != null) { reader2.close(); } } catch (IOException ignore) {  }
         }
     }
 
