@@ -11,6 +11,8 @@ It supports the following assertion types:
 - Validate output XML against an XSD file
 - Compare output XML of two stylesheets  
 
+For more detail see the [javadocs](https://renevanderark.github.io/transform-assert/)
+
 ## Examples
 
 ### String equality (isEqualTo)
