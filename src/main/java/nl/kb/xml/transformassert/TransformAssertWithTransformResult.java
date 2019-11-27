@@ -64,7 +64,7 @@ public class TransformAssertWithTransformResult implements TransformResults {
      * Declares an XML (as byte array) to do assertions on directly
      * @param xml the xml as {@link byte[]}
      * @param logBack custom {@link String} {@link Consumer}
-     * @return instance of self exposing assertion methods and evaluate
+     * @return instance of self exposing assertion methods and {@link #evaluate()}
      */
     public static TransformAssertWithTransformResult describeXml(byte[] xml, Consumer<String> logBack) {
         return new TransformAssertWithTransformResult(xml, logBack);
@@ -74,7 +74,7 @@ public class TransformAssertWithTransformResult implements TransformResults {
      * Declares an XML (as byte array) to do assertions on directly<br>
      * Prints output to standard output
      * @param xml the xml as {@link byte[]}
-     * @return instance of self exposing assertion methods and evaluate
+     * @return instance of self exposing assertion methods and {@link #evaluate()}
      */
     public static TransformAssertWithTransformResult describeXml(byte[] xml) {
         return new TransformAssertWithTransformResult(xml, System.out::println);
@@ -159,7 +159,7 @@ public class TransformAssertWithTransformResult implements TransformResults {
      * @param xPath the xpath pointing to the expected value
      * @param expected the expected value
      * @param rule name of the assertion
-     * @return instance of self exposing assertion methods and evaluate
+     * @return instance of self exposing assertion methods and {@link #evaluate()}
      * @throws XPathExpressionException when the xpath is not valid, or namespace is not declared in {@link #usingNamespace(String, String)}
      */
     public TransformAssertWithTransformResult hasXpathContaining(String xPath, String expected, String... rule)
@@ -173,7 +173,7 @@ public class TransformAssertWithTransformResult implements TransformResults {
      * @param xPath the xpath pointing to the unexpected value
      * @param expected the expected value
      * @param rule name of the assertion
-     * @return instance of self exposing assertion methods and evaluate
+     * @return instance of self exposing assertion methods and {@link #evaluate()}
      * @throws XPathExpressionException when the xpath is not valid, or namespace is not declared in {@link #usingNamespace(String, String)}
      */
     public TransformAssertWithTransformResult doesNothaveXpathContaining(String xPath, String expected, String... rule)
@@ -186,7 +186,7 @@ public class TransformAssertWithTransformResult implements TransformResults {
      * Asserts that the resulting XML validates against the given xsd {@link File}
      * @param xsd the xsd {@link File}
      * @param rule name of the assertion
-     * @return instance of self exposing assertion methods and evaluate
+     * @return instance of self exposing assertion methods and {@link #evaluate()}
      * @throws UnsupportedEncodingException when UTF-8 is not supported
      * @throws FileNotFoundException when the xsd file is not found
      * @throws SAXException when the xsd file cannot be parsed by Saxon
@@ -234,7 +234,7 @@ public class TransformAssertWithTransformResult implements TransformResults {
      * @param xPath the xpath pointing to the expected value
      * @param expected the expected value
      * @param rule name of the assertion
-     * @return instance of self exposing assertion methods and evaluate
+     * @return instance of self exposing assertion methods and {@link #evaluate()}
      * @throws XPathExpressionException when the xpath is not valid, or namespace is not declared in {@link #usingNamespace(String, String)}
      */
     public TransformAssertWithTransformResult andHasXpathContaining(String xPath, String expected, String... rule) throws XPathExpressionException {
@@ -247,7 +247,7 @@ public class TransformAssertWithTransformResult implements TransformResults {
      * @param xPath the xpath pointing to the unexpected value
      * @param expected the expected value
      * @param rule name of the assertion
-     * @return instance of self exposing assertion methods and evaluate
+     * @return instance of self exposing assertion methods and {@link #evaluate()}
      * @throws XPathExpressionException when the xpath is not valid, or namespace is not declared in {@link #usingNamespace(String, String)}
      */
     public TransformAssertWithTransformResult andDoesNotHaveXpathContaining(String xPath, String expected, String... rule) throws XPathExpressionException {
@@ -267,7 +267,7 @@ public class TransformAssertWithTransformResult implements TransformResults {
      * Asserts that the resulting XML validates against the given xsd {@link File}
      * @param xsd the xsd {@link File}
      * @param rule name of the assertion
-     * @return instance of self exposing assertion methods and evaluate
+     * @return instance of self exposing assertion methods and {@link #evaluate()}
      * @throws UnsupportedEncodingException when UTF-8 is not supported
      * @throws FileNotFoundException when the xsd file is not found
      * @throws SAXException when the xsd file cannot be parsed by Saxon

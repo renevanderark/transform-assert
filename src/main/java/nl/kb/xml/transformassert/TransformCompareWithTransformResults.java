@@ -10,6 +10,7 @@ import org.xmlunit.diff.ElementSelectors;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.xpath.XPathExpressionException;
+import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
@@ -22,6 +23,10 @@ import static nl.kb.xml.transformassert.LogUtil.mkRule;
 import static nl.kb.xml.transformassert.ResultStatus.FAILED;
 import static nl.kb.xml.transformassert.ResultStatus.OK;
 
+/**
+ * An instance of this class is returned by {@link TransformCompareWithTransformers#whenTransforming(File, String...)}
+ * <p>It exposes assertion methods to do comparisons between the XML outputted by both stylesheets</p>
+ */
 public class TransformCompareWithTransformResults implements TransformResults {
     private final byte[] resultFromBaseline;
     private final byte[] resultUnderTest;
@@ -132,6 +137,12 @@ public class TransformCompareWithTransformResults implements TransformResults {
 
     }
 
+    /**
+     * Asserts that the output of both stylesheets is exactly the same {@link String#equals}
+     * @param rule name of the assertion
+     * @return instance of self exposing assertion methods and {@link #evaluate()}
+     * @throws UnsupportedEncodingException when UTF-8 is not supported
+     */
     public TransformCompareWithTransformResults hasEqualOutputs(String... rule) throws UnsupportedEncodingException {
         final String expected = new String(resultFromBaseline, StandardCharsets.UTF_8.name());
         final String stringResult = new String(resultUnderTest, StandardCharsets.UTF_8.name());
@@ -171,6 +182,12 @@ public class TransformCompareWithTransformResults implements TransformResults {
         return usingNamespace(key, value);
     }
 
+    /**
+     * Experimental: asserts that the XML are <i>semantically</i> identical (f.i.: node order may differ)<br>
+     * this method uses the {@link Diff} class of <a href="https://www.xmlunit.org/">XmlUnit</a>
+     * @param rule name of the assertion
+     * @return instance of self exposing assertion methods and {@link #evaluate()}
+     */
     public TransformCompareWithTransformResults outputsIdenticalXml(String... rule) {
         final String report = LogUtil.mkRule(
                 "SEMANTICALLY EQUAL BASELINE OUPUT"
@@ -198,6 +215,13 @@ public class TransformCompareWithTransformResults implements TransformResults {
         return this;
     }
 
+    /**
+     * Asserts that the {@link String}-value resulting from the given xpath is the same in both outputted XML's
+     * @param xPath the xpath on the output XML
+     * @param rule name of the assertion
+     * @return instance of self exposing assertion methods and {@link #evaluate()}
+     * @throws XPathExpressionException when the xpath is not valid, or namespace is not declared in {@link #usingNamespace(String, String)}
+     */
     public TransformCompareWithTransformResults hasMatchingXPathResultsFor(String xPath, String... rule) throws XPathExpressionException {
         final List<String> stringResults;
         final List<String> expected;
