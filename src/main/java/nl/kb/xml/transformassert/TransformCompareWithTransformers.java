@@ -39,14 +39,22 @@ public class TransformCompareWithTransformers {
      * @throws TransformerException when the XML file cannot be parsed by Saxon
      */
     public TransformCompareWithTransformResults whenTransforming(File xmlFile, String... parameters) throws FileNotFoundException, UnsupportedEncodingException, TransformerException {
-        final Reader reader1 = new InputStreamReader(new FileInputStream(xmlFile), StandardCharsets.UTF_8.name());
-        final Reader reader2 = new InputStreamReader(new FileInputStream(xmlFile), StandardCharsets.UTF_8.name());
-        this.sourceXmlPath = xmlFile.getAbsolutePath();
+        Reader reader1 = null;
+        Reader reader2 = null;
 
-        final byte[] resultUnderTest = underTest.getTransformResult(reader1, parameters);
-        final byte[] resultFromBaseline = baseline.getTransformResult(reader2, parameters);
+        try {
+            reader1 = new InputStreamReader(new FileInputStream(xmlFile), StandardCharsets.UTF_8.name());
+            reader2 = new InputStreamReader(new FileInputStream(xmlFile), StandardCharsets.UTF_8.name());
+            this.sourceXmlPath = xmlFile.getAbsolutePath();
 
-        return new TransformCompareWithTransformResults(this, resultFromBaseline, resultUnderTest);
+            final byte[] resultUnderTest = underTest.getTransformResult(reader1, parameters);
+            final byte[] resultFromBaseline = baseline.getTransformResult(reader2, parameters);
+
+            return new TransformCompareWithTransformResults(this, resultFromBaseline, resultUnderTest);
+        } finally {
+            try {  if (reader1 != null) { reader1.close(); } } catch (IOException e) { e.printStackTrace(); }
+            try {  if (reader2 != null) { reader2.close(); } } catch (IOException e) { e.printStackTrace(); }
+        }
     }
 
     /**
