@@ -12,7 +12,8 @@ import java.util.function.Consumer;
 
 /**
  * Entrypoint for the transform-assert library.<br>
- * Use the static method {@link #describe(File)} to start work.
+ * To effectively walk through this documentation, start out at {@link #describe(File)} and follow
+ * the return references from each method.
  */
 public class TransformAssert {
 

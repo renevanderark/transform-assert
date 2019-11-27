@@ -67,20 +67,34 @@ public class TransformCompareWithTransformResults implements TransformResults {
         logBack.accept(System.lineSeparator() + "IT SHOULD:");
     }
 
-
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void evaluate() throws UnsupportedEncodingException {
         evaluate(false, null);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void evaluate(boolean listXsltWarnings) throws UnsupportedEncodingException {
         evaluate(listXsltWarnings, null);
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void evaluate(Consumer<String> failureConsumer) throws UnsupportedEncodingException {
         evaluate(false, failureConsumer);
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void evaluate(boolean listXsltWarnings, Consumer<String> failureConsumer) throws UnsupportedEncodingException {
         if (outputConsumer == null) {
             logBack.accept(System.lineSeparator() + "OUTPUT:");
@@ -139,13 +153,20 @@ public class TransformCompareWithTransformResults implements TransformResults {
         return this;
     }
 
-
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public TransformCompareWithTransformResults usingNamespace(String key, String value) {
         resultEvaluator.addNamespace(key, value);
         baselineEvaluator.addNamespace(key, value);
         return this;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public TransformCompareWithTransformResults andUsingNamespace(String key, String value) {
         return usingNamespace(key, value);
     }

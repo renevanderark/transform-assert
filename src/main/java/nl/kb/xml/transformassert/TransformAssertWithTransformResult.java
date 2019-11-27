@@ -27,6 +27,10 @@ import java.util.function.Consumer;
 import static nl.kb.xml.transformassert.ResultStatus.FAILED;
 import static nl.kb.xml.transformassert.ResultStatus.OK;
 
+/**
+ * An instance of this class is returned by {@link TransformAssertWithTransformer#whenTransforming(File, String...)}
+ * <p>It exposes methods to do assertions on the contents of the output of the XSLT under test</p>
+ */
 public class TransformAssertWithTransformResult implements TransformResults {
 
     private final byte[] transformationOutput;
@@ -56,21 +60,44 @@ public class TransformAssertWithTransformResult implements TransformResults {
         logBack.accept(System.lineSeparator() + "IT SHOULD:");
     }
 
+    /**
+     * Declares an XML (as byte array) to do assertions on directly
+     * @param xml the xml as {@link byte[]}
+     * @param logBack custom {@link String} {@link Consumer}
+     * @return instance of self exposing assertion methods and evaluate
+     */
     public static TransformAssertWithTransformResult describeXml(byte[] xml, Consumer<String> logBack) {
         return new TransformAssertWithTransformResult(xml, logBack);
     }
 
+    /**
+     * Declares an XML (as byte array) to do assertions on directly<br>
+     * Prints output to standard output
+     * @param xml the xml as {@link byte[]}
+     * @return instance of self exposing assertion methods and evaluate
+     */
     public static TransformAssertWithTransformResult describeXml(byte[] xml) {
         return new TransformAssertWithTransformResult(xml, System.out::println);
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public TransformAssertWithTransformResult usingNamespace(String key, String value) {
         xpathEvaluator.addNamespace(key, value);
         return this;
     }
 
 
+    /**
+     * Asserts that the output of the xslt transformation is equal to {@link String}
+     * @param expected the expected {@link String} value
+     * @param rule the name of this assertion
+     * @return instance of self exposing assertion methods and {@link #evaluate()}
+     * @throws UnsupportedEncodingException when UTF-8 is not supported
+     */
     public TransformAssertWithTransformResult isEqualto(String expected, String... rule) throws UnsupportedEncodingException {
         final String stringResult = new String(transformationOutput, StandardCharsets.UTF_8.name());
 
@@ -127,20 +154,43 @@ public class TransformAssertWithTransformResult implements TransformResults {
         return this;
     }
 
-
+    /**
+     * Asserts that the resulting XML matches expected {@link String} value for given xpath
+     * @param xPath the xpath pointing to the expected value
+     * @param expected the expected value
+     * @param rule name of the assertion
+     * @return instance of self exposing assertion methods and evaluate
+     * @throws XPathExpressionException when the xpath is not valid, or namespace is not declared in {@link #usingNamespace(String, String)}
+     */
     public TransformAssertWithTransformResult hasXpathContaining(String xPath, String expected, String... rule)
             throws XPathExpressionException {
 
         return matchXPath(xPath, expected, false, rule);
     }
 
+    /**
+     * Asserts that the resulting XML is not equal to unexpected {@link String} value for given xpath
+     * @param xPath the xpath pointing to the unexpected value
+     * @param expected the expected value
+     * @param rule name of the assertion
+     * @return instance of self exposing assertion methods and evaluate
+     * @throws XPathExpressionException when the xpath is not valid, or namespace is not declared in {@link #usingNamespace(String, String)}
+     */
     public TransformAssertWithTransformResult doesNothaveXpathContaining(String xPath, String expected, String... rule)
             throws XPathExpressionException {
 
         return matchXPath(xPath, expected, true, rule);
     }
 
-
+    /**
+     * Asserts that the resulting XML validates against the given xsd {@link File}
+     * @param xsd the xsd {@link File}
+     * @param rule name of the assertion
+     * @return instance of self exposing assertion methods and evaluate
+     * @throws UnsupportedEncodingException when UTF-8 is not supported
+     * @throws FileNotFoundException when the xsd file is not found
+     * @throws SAXException when the xsd file cannot be parsed by Saxon
+     */
     public TransformAssertWithTransformResult validatesAgainstXSD(File xsd, String... rule) throws UnsupportedEncodingException, FileNotFoundException, SAXException {
         final Reader xmlReader = new InputStreamReader(new ByteArrayInputStream(transformationOutput), StandardCharsets.UTF_8.name());
         final Reader xsdReader = new InputStreamReader(new FileInputStream(xsd), StandardCharsets.UTF_8.name());
@@ -168,44 +218,93 @@ public class TransformAssertWithTransformResult implements TransformResults {
         return this;
     }
 
+    /**
+     * Asserts that the output of the xslt transformation is equal to {@link String}
+     * @param expected the expected {@link String} value
+     * @param rule the name of this assertion
+     * @return instance of self exposing assertion methods and {@link #evaluate()}
+     * @throws UnsupportedEncodingException when UTF-8 is not supported
+     */
     public TransformAssertWithTransformResult andIsEqualTo(String expected, String... rule) throws UnsupportedEncodingException {
         return isEqualto(expected, rule);
     }
 
+    /**
+     * Asserts that the resulting XML matches expected {@link String} value for given xpath
+     * @param xPath the xpath pointing to the expected value
+     * @param expected the expected value
+     * @param rule name of the assertion
+     * @return instance of self exposing assertion methods and evaluate
+     * @throws XPathExpressionException when the xpath is not valid, or namespace is not declared in {@link #usingNamespace(String, String)}
+     */
     public TransformAssertWithTransformResult andHasXpathContaining(String xPath, String expected, String... rule) throws XPathExpressionException {
 
         return hasXpathContaining(xPath, expected, rule);
     }
 
+    /**
+     * Asserts that the resulting XML is not equal to unexpected {@link String} value for given xpath
+     * @param xPath the xpath pointing to the unexpected value
+     * @param expected the expected value
+     * @param rule name of the assertion
+     * @return instance of self exposing assertion methods and evaluate
+     * @throws XPathExpressionException when the xpath is not valid, or namespace is not declared in {@link #usingNamespace(String, String)}
+     */
     public TransformAssertWithTransformResult andDoesNotHaveXpathContaining(String xPath, String expected, String... rule) throws XPathExpressionException {
 
         return doesNothaveXpathContaining(xPath, expected, rule);
     }
 
-
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public TransformAssertWithTransformResult andUsingNamespace(String key, String value) {
         return usingNamespace(key, value);
     }
 
+    /**
+     * Asserts that the resulting XML validates against the given xsd {@link File}
+     * @param xsd the xsd {@link File}
+     * @param rule name of the assertion
+     * @return instance of self exposing assertion methods and evaluate
+     * @throws UnsupportedEncodingException when UTF-8 is not supported
+     * @throws FileNotFoundException when the xsd file is not found
+     * @throws SAXException when the xsd file cannot be parsed by Saxon
+     */
     public TransformAssertWithTransformResult andValidatesAgainstXSD(File xsd, String... rule) throws FileNotFoundException, UnsupportedEncodingException, SAXException {
         return validatesAgainstXSD(xsd, rule);
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void evaluate() throws UnsupportedEncodingException {
         evaluate(false, null);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void evaluate(Consumer<String> failureConsumer) throws UnsupportedEncodingException {
         evaluate(false, failureConsumer);
 
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void evaluate(boolean listXsltWarnings) throws UnsupportedEncodingException {
         evaluate(listXsltWarnings, null);
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void evaluate(boolean listXsltWarnings, Consumer<String> failureConsumer) throws UnsupportedEncodingException {
         if (outputConsumer == null) {
             logBack.accept(System.lineSeparator() + "OUTPUT:");

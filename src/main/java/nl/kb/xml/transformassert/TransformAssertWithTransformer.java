@@ -21,6 +21,26 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
+/**
+ * An instance of this class is returned by {@link TransformAssert#describe(File)}
+ * <p>It exposes methods to either:</p>
+ * <ul>
+ * <li>Declare the XML file to be transformed by the XSLT declared there:
+ * <ul>
+ *     <li>{@link #whenTransforming(File, String...)}</li>
+ *     <li>{@link #whenTransforming(String, String...)}</li>
+ * </ul>
+ *
+ * </li>
+ * <li>Compare the output of the XSLT declared in there to the output of another XSLT:
+ * <ul>
+ *     <li>{@link #whenComparingTo(File)}</li>
+ *     <li>{@link #whenComparingTo(String)}</li>
+ * </ul>
+ * </li>
+ * </ul>
+ *
+ */
 public class TransformAssertWithTransformer {
     private final List<TransformerException> errorsAndWarnings = new ArrayList<>();
     private final Consumer<String> logBack;
@@ -38,19 +58,43 @@ public class TransformAssertWithTransformer {
         this.transformationOutput = transformationOutput;
     }
 
-
+    /**
+     * Declares the xml {@link File} to be transformed
+     * @param xmlFile the xml {@link File}
+     * @param parameters tuples of XSLT {@link String}-parameters
+     * @return instance of {@link TransformAssertWithTransformResult}
+     * @throws FileNotFoundException when the XML is not found
+     * @throws UnsupportedEncodingException when the UTF-8 charset is not supported
+     * @throws TransformerException when the XML file cannot be parsed by Saxon
+     */
     public TransformAssertWithTransformResult whenTransforming(File xmlFile, String... parameters) throws FileNotFoundException, UnsupportedEncodingException, TransformerException {
         final Reader reader = new InputStreamReader(new FileInputStream(xmlFile), StandardCharsets.UTF_8.name());
         this.sourceXmlPath = xmlFile.getAbsolutePath();
         return transform(reader, parameters);
     }
 
+    /**
+     * Declares the xml {@link String} to be transformed
+     * @param xml the xml {@link String}
+     * @param parameters tuples of XSLT {@link String}-parameters
+     * @return instance of {@link TransformAssertWithTransformResult}
+     * @throws UnsupportedEncodingException when the UTF-8 charset is not supported
+     * @throws TransformerException when the XML file cannot be parsed by Saxon
+     */
     public TransformAssertWithTransformResult whenTransforming(String xml, String... parameters) throws UnsupportedEncodingException, TransformerException {
         final Reader reader = new InputStreamReader(new ByteArrayInputStream(xml.getBytes()), StandardCharsets.UTF_8.name());
         this.sourceXmlString = xml;
         return transform(reader, parameters);
     }
 
+    /**
+     * Declares another xslt {@link File} of which the output will be compared to the xslt under test
+     * @param xsltFile the xslt {@link File} to compare to
+     * @return instance of {@link TransformCompareWithTransformers}
+     * @throws FileNotFoundException when the xslt file cannout be found
+     * @throws UnsupportedEncodingException when the UTF-8 charset is not supported
+     * @throws TransformerConfigurationException when the xslt file cannot be parsed by Saxon
+     */
     public TransformCompareWithTransformers whenComparingTo(File xsltFile) throws FileNotFoundException, UnsupportedEncodingException, TransformerConfigurationException {
         final TransformAssertWithTransformer transformAssertWithTransformer =
                 new TransformAssertWithTransformer(logBack, transformationOutput);
@@ -61,6 +105,13 @@ public class TransformAssertWithTransformer {
         return new TransformCompareWithTransformers(this, transformAssertWithTransformer);
     }
 
+    /**
+     * Declares another xslt {@link String} of which the output will be compared to the xslt under test
+     * @param xslt the xslt {@link String} to compare to
+     * @return instance of {@link TransformCompareWithTransformers}
+     * @throws UnsupportedEncodingException when the UTF-8 charset is not supported
+     * @throws TransformerConfigurationException when the xslt file cannot be parsed by Saxon
+     */
     public TransformCompareWithTransformers whenComparingTo(String xslt) throws UnsupportedEncodingException, TransformerConfigurationException {
 
         final TransformAssertWithTransformer transformAssertWithTransformer =
