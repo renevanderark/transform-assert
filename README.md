@@ -203,7 +203,7 @@ FAILURES:
 ===================================================
 ```
 
-### Semantically compare output XML (experimentak)
+### Semantically compare output XML (experimental)
 
 ```java
 describe(new File("./src/test/resources/7.xslt"))
