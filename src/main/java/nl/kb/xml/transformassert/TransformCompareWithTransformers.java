@@ -5,6 +5,7 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.UnsupportedEncodingException;
@@ -57,14 +58,22 @@ public class TransformCompareWithTransformers {
      * @throws TransformerException when the XML file cannot be parsed by Saxon
      */
     public TransformCompareWithTransformResults whenTransforming(String xml, String... parameters) throws UnsupportedEncodingException, TransformerException {
-        final Reader reader1 = new InputStreamReader(new ByteArrayInputStream(xml.getBytes()), StandardCharsets.UTF_8.name());
-        final Reader reader2 = new InputStreamReader(new ByteArrayInputStream(xml.getBytes()), StandardCharsets.UTF_8.name());
-        this.sourceXmlString = xml;
 
-        final byte[] resultUnderTest = underTest.getTransformResult(reader1, parameters);
-        final byte[] resultFromBaseline = baseline.getTransformResult(reader2, parameters);
+        Reader reader1 = null;
+        Reader reader2 = null;
+        try {
+            reader1 = new InputStreamReader(new ByteArrayInputStream(xml.getBytes()), StandardCharsets.UTF_8.name());
+            reader2 = new InputStreamReader(new ByteArrayInputStream(xml.getBytes()), StandardCharsets.UTF_8.name());
+            this.sourceXmlString = xml;
 
-        return new TransformCompareWithTransformResults(this, resultFromBaseline, resultUnderTest);
+            final byte[] resultUnderTest = underTest.getTransformResult(reader1, parameters);
+            final byte[] resultFromBaseline = baseline.getTransformResult(reader2, parameters);
+
+            return new TransformCompareWithTransformResults(this, resultFromBaseline, resultUnderTest);
+        } finally {
+            try {  if (reader1 != null) { reader1.close(); } } catch (IOException e) { e.printStackTrace(); }
+            try {  if (reader2 != null) { reader2.close(); } } catch (IOException e) { e.printStackTrace(); }
+        }
     }
 
     Consumer<String> getLogBack() {
