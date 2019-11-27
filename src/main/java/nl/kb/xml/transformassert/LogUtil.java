@@ -5,7 +5,7 @@ import java.util.function.Consumer;
 class LogUtil {
     static void indent(String lines, int whitespace, Consumer<String> logBack) {
 
-        for(String line : lines.split("\\r\\n|\\n|\\r")) {
+        for (String line : lines.split("\\r\\n|\\n|\\r")) {
             final StringBuilder sb = new StringBuilder();
             for (int i = 0; i < whitespace; i++) {
                 sb.append(" ");

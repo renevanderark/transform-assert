@@ -1,5 +1,5 @@
 package nl.kb.xml.transformassert;
 
-public enum ResultStatus {
+enum ResultStatus {
     OK, FAILED
 }

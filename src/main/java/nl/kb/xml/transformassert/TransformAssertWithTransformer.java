@@ -45,7 +45,7 @@ public class TransformAssertWithTransformer {
         return transform(reader, parameters);
     }
 
-    public TransformAssertWithTransformResult whenTransforming(String xml, String... parameters) throws FileNotFoundException, UnsupportedEncodingException, TransformerException {
+    public TransformAssertWithTransformResult whenTransforming(String xml, String... parameters) throws UnsupportedEncodingException, TransformerException {
         final Reader reader = new InputStreamReader(new ByteArrayInputStream(xml.getBytes()), StandardCharsets.UTF_8.name());
         this.sourceXmlString = xml;
         return transform(reader, parameters);
@@ -86,12 +86,12 @@ public class TransformAssertWithTransformer {
 
         transformer.setErrorListener(new ErrorListener() {
             @Override
-            public void warning(TransformerException exception) throws TransformerException {
+            public void warning(TransformerException exception) {
                 errorsAndWarnings.add(exception);
             }
 
             @Override
-            public void error(TransformerException exception) throws TransformerException {
+            public void error(TransformerException exception) {
                 errorsAndWarnings.add(exception);
             }
 
@@ -113,7 +113,6 @@ public class TransformAssertWithTransformer {
         final TransformerFactory factory = new net.sf.saxon.TransformerFactoryImpl();
         templates = factory.newTemplates(xsltSource);
     }
-
 
 
     void setXsltPath(String xsltPath) throws TransformerConfigurationException {

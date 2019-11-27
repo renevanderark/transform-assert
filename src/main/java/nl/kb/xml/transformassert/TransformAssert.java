@@ -4,7 +4,6 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.stream.StreamSource;
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.UnsupportedEncodingException;
@@ -14,7 +13,7 @@ import java.util.function.Consumer;
 public class TransformAssert {
 
     public static TransformAssertWithTransformer describe(File xsltFile, Consumer<String> logBack, Consumer<String> transformationOutput)
-            throws FileNotFoundException, UnsupportedEncodingException, TransformerException {
+            throws TransformerException {
         final TransformAssertWithTransformer transformAssertWithTransformer =
                 new TransformAssertWithTransformer(logBack, transformationOutput);
 
@@ -38,7 +37,7 @@ public class TransformAssert {
     }
 
     public static TransformAssertWithTransformer describe(File xsltFile, Consumer<String> logBack)
-            throws FileNotFoundException, UnsupportedEncodingException, TransformerException {
+            throws TransformerException {
 
         return describe(xsltFile, logBack, null);
     }
@@ -50,7 +49,7 @@ public class TransformAssert {
     }
 
     public static TransformAssertWithTransformer describe(File xsltFile)
-            throws FileNotFoundException, UnsupportedEncodingException, TransformerException {
+            throws TransformerException {
 
         return describe(xsltFile, System.out::println);
     }

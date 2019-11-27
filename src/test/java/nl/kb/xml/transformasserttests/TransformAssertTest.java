@@ -4,7 +4,6 @@ import nl.kb.xml.transformassert.TransformAssertWithTransformer;
 import org.junit.Test;
 import org.xml.sax.SAXException;
 
-import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.xpath.XPathExpressionException;
 import java.io.File;
@@ -42,7 +41,7 @@ public class TransformAssertTest {
 
 
     @Test(expected = AssertionError.class)
-    public void isEqualToAssertsStringInequalityOfOutput() throws UnsupportedEncodingException, TransformerException, FileNotFoundException {
+    public void isEqualToAssertsStringInequalityOfOutput() throws UnsupportedEncodingException, TransformerException {
         describe(XSLT)
                 .whenTransforming(XML)
                 .isEqualto("not bar", "het moet 'not bar' zijn")
@@ -64,7 +63,7 @@ public class TransformAssertTest {
     // Dit test op gelijkheid op de volledige output van een stylesheet transformatie (isEqualTo)
     // hier wordt dus verwacht dat de stylesheet als output slechts de waarde 'bar' heeft
     @Test
-    public void transformerShouldSupportImports() throws UnsupportedEncodingException, FileNotFoundException, TransformerException {
+    public void transformerShouldSupportImports() throws UnsupportedEncodingException, TransformerException {
         describe(new File("./src/test/resources/2.xslt"))
                 .whenTransforming(XML)
                 .isEqualto("bar")
@@ -92,7 +91,7 @@ public class TransformAssertTest {
 
     // Dit test op waardes die voortkomen uit het volgen van een xpath over de output van de transformatie (hasXpathContaining)
     @Test
-    public void hasXpathContainingShouldAssertMatches() throws IOException, TransformerException, ParserConfigurationException, SAXException, XPathExpressionException {
+    public void hasXpathContainingShouldAssertMatches() throws IOException, TransformerException, XPathExpressionException {
         describe(new File("./src/test/resources/3.xslt"))
                 .whenTransforming(XML)
                 .hasXpathContaining("//foo/text()", "foo")
@@ -104,7 +103,7 @@ public class TransformAssertTest {
     // Deze test geeft parameters mee aan de stylesheet
     // Bij de 'xpath assertions' wordt een eigen geformuleerde regel meegegeven
     @Test
-    public void transformerShouldSupportParameters() throws IOException, TransformerException, ParserConfigurationException, SAXException, XPathExpressionException {
+    public void transformerShouldSupportParameters() throws IOException, TransformerException, XPathExpressionException {
         describe(new File("./src/test/resources/5.xslt"))
                 .whenTransforming(XML, "param1", "param1-value","param2", "param2-value")
                 .hasXpathContaining("/output/one/text()", "bar", "Node <one> moet de tekst binnen <foo> bevatten")
@@ -116,7 +115,7 @@ public class TransformAssertTest {
 
     // Deze test is bedoeld om te controleren of alle fouten die zijn aangetroffen ook worden teruggerapporteerd
     @Test(expected = AssertionError.class)
-    public void hasXpathContainingShouldAssertMismatches() throws IOException, TransformerException, ParserConfigurationException, SAXException, XPathExpressionException {
+    public void hasXpathContainingShouldAssertMismatches() throws IOException, TransformerException, XPathExpressionException {
         describe(new File("./src/test/resources/3.xslt"))
                 .whenTransforming(XML)
                 .hasXpathContaining("//foo/text()", "not foo", "deze zal falen")
@@ -125,7 +124,7 @@ public class TransformAssertTest {
     }
 
     @Test(expected = AssertionError.class)
-    public void hasXpathContainingShouldFailCorrectlyOnMissingNode() throws IOException, TransformerException, ParserConfigurationException, SAXException, XPathExpressionException {
+    public void hasXpathContainingShouldFailCorrectlyOnMissingNode() throws IOException, TransformerException, XPathExpressionException {
         describe(new File("./src/test/resources/3.xslt"))
                 .whenTransforming(XML)
                 .hasXpathContaining("//foo/text()", "foo")
@@ -134,7 +133,7 @@ public class TransformAssertTest {
     }
 
     @Test
-    public void transformerShouldResolveXmlContent() throws IOException, TransformerException, ParserConfigurationException, SAXException, XPathExpressionException {
+    public void transformerShouldResolveXmlContent() throws IOException, TransformerException, XPathExpressionException {
         describe(new File("./src/test/resources/4.xslt"))
                 .whenTransforming(XML)
                 .hasXpathContaining("/data/text()", "bar")
@@ -145,7 +144,7 @@ public class TransformAssertTest {
 
     // Deze test heeft namespaces in de 'xpath assertions', die moeten gedeclareeerd worden (usingNamespace).
     @Test
-    public void evaluatorsShouldSupportNamespaces() throws IOException, TransformerException, ParserConfigurationException, SAXException, XPathExpressionException {
+    public void evaluatorsShouldSupportNamespaces() throws IOException, TransformerException, XPathExpressionException {
         describe(new File("./src/test/resources/6.xslt"))
                 .whenTransforming(XML)
                 .usingNamespace("ns1", "ns1:urn")
@@ -177,7 +176,7 @@ public class TransformAssertTest {
     }
 
     @Test
-    public void reportingLogsExpectedMessages() throws IOException, TransformerException, SAXException, XPathExpressionException, ParserConfigurationException {
+    public void reportingLogsExpectedMessages() throws IOException, TransformerException, SAXException, XPathExpressionException {
         final List<String> messages = new ArrayList<>();
 
         try {
@@ -215,7 +214,7 @@ public class TransformAssertTest {
     }
 
     @Test
-    public void moeilijk() throws IOException, TransformerException, ParserConfigurationException, SAXException, XPathExpressionException {
+    public void moeilijk() throws IOException, TransformerException, XPathExpressionException {
         final TransformAssertWithTransformer moeilijk = describe(new File("./src/test/resources/moeilijk.xslt"));
         moeilijk
                 .whenTransforming("<Record>" +
@@ -239,7 +238,7 @@ public class TransformAssertTest {
     }
 
     @Test
-    public void negatedXpathMatch() throws IOException, TransformerException, ParserConfigurationException, SAXException, XPathExpressionException {
+    public void negatedXpathMatch() throws IOException, TransformerException, XPathExpressionException {
         describe(new File("./src/test/resources/5.xslt"))
             .whenTransforming(XML, "param1", "param1-value", "param2", "param2-value")
             .hasXpathContaining("/output/one/text()", "bar" )
@@ -261,7 +260,7 @@ public class TransformAssertTest {
     }
 
     @Test
-    public void supportsCustomOutputConsumer() throws UnsupportedEncodingException, TransformerException, FileNotFoundException {
+    public void supportsCustomOutputConsumer() throws UnsupportedEncodingException, TransformerException {
         final List<String> out = new ArrayList<>();
         describe(XSLT, System.out::println, out::add)
                 .whenTransforming(XML)
@@ -273,7 +272,7 @@ public class TransformAssertTest {
 
 
     @Test
-    public void supportsComparisonWithBaseline() throws IOException, TransformerException, ParserConfigurationException, SAXException, XPathExpressionException {
+    public void supportsComparisonWithBaseline() throws IOException, TransformerException, XPathExpressionException {
 
         describe(XSLT)
                 .whenComparingTo(new File("./src/test/resources/1.xslt"))
@@ -290,7 +289,7 @@ public class TransformAssertTest {
     }
 
     @Test(expected = AssertionError.class)
-    public void throwsWhenComparisonWithBaselineFails() throws UnsupportedEncodingException, TransformerException, FileNotFoundException {
+    public void throwsWhenComparisonWithBaselineFails() throws UnsupportedEncodingException, TransformerException {
 
         describe(new File("./src/test/resources/3.xslt"))
                 .whenComparingTo(XSLT)
@@ -301,7 +300,7 @@ public class TransformAssertTest {
     }
 
     @Test(expected = AssertionError.class)
-    public void throwsWhenXpathComparisonFails() throws IOException, TransformerException, ParserConfigurationException, SAXException, XPathExpressionException {
+    public void throwsWhenXpathComparisonFails() throws IOException, TransformerException, XPathExpressionException {
         describe(new File("./src/test/resources/5.xslt"))
                 .whenComparingTo(new File("./src/test/resources/3.xslt"))
                 .whenTransforming(XML)
@@ -311,7 +310,7 @@ public class TransformAssertTest {
     }
 
     @Test(expected = AssertionError.class)
-    public void throwsWhenThereAreSemanticDifferences() throws IOException, TransformerException, ParserConfigurationException, SAXException, XPathExpressionException {
+    public void throwsWhenThereAreSemanticDifferences() throws IOException, TransformerException {
         describe(new File("./src/test/resources/7.xslt"))
                 .whenComparingTo(new File("./src/test/resources/3.xslt"))
                 .whenTransforming(XML)
@@ -320,7 +319,7 @@ public class TransformAssertTest {
     }
 
     @Test
-    public void doesNotthrowWhenThereOnlyDifferencesInOrdering() throws IOException, TransformerException, ParserConfigurationException, SAXException, XPathExpressionException {
+    public void doesNotthrowWhenThereOnlyDifferencesInOrdering() throws IOException, TransformerException {
         describe(new File("./src/test/resources/8.xslt"))
                 .whenComparingTo(new File("./src/test/resources/3.xslt"))
                 .whenTransforming(XML)
@@ -329,7 +328,7 @@ public class TransformAssertTest {
     }
 
     @Test
-    public void describeXMLShouldWork() throws IOException, XPathExpressionException, ParserConfigurationException {
+    public void describeXMLShouldWork() throws IOException, XPathExpressionException {
         describeXml(XML.getBytes())
                 .hasXpathContaining("/root/foo/text()", "bar")
                 .evaluate();

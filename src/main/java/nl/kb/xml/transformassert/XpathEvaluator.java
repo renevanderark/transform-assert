@@ -32,7 +32,7 @@ class XpathEvaluator {
         dbf.setNamespaceAware(true);
     }
 
-    XpathEvaluator(byte[] transformationOutput)  {
+    XpathEvaluator(byte[] transformationOutput) {
         this.xPathFactory = new XPathFactoryImpl();
         this.transformationOutput = transformationOutput;
 

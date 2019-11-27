@@ -129,13 +129,13 @@ public class TransformAssertWithTransformResult implements TransformResults {
 
 
     public TransformAssertWithTransformResult hasXpathContaining(String xPath, String expected, String... rule)
-            throws XPathExpressionException, ParserConfigurationException, IOException {
+            throws XPathExpressionException {
 
         return matchXPath(xPath, expected, false, rule);
     }
 
     public TransformAssertWithTransformResult doesNothaveXpathContaining(String xPath, String expected, String... rule)
-            throws XPathExpressionException, ParserConfigurationException, IOException {
+            throws XPathExpressionException {
 
         return matchXPath(xPath, expected, true, rule);
     }
@@ -172,12 +172,12 @@ public class TransformAssertWithTransformResult implements TransformResults {
         return isEqualto(expected, rule);
     }
 
-    public TransformAssertWithTransformResult andHasXpathContaining(String xPath, String expected, String... rule) throws ParserConfigurationException, SAXException, XPathExpressionException, IOException {
+    public TransformAssertWithTransformResult andHasXpathContaining(String xPath, String expected, String... rule) throws XPathExpressionException {
 
         return hasXpathContaining(xPath, expected, rule);
     }
 
-    public TransformAssertWithTransformResult andDoesNotHaveXpathContaining(String xPath, String expected, String... rule) throws ParserConfigurationException, SAXException, XPathExpressionException, IOException {
+    public TransformAssertWithTransformResult andDoesNotHaveXpathContaining(String xPath, String expected, String... rule) throws XPathExpressionException {
 
         return doesNothaveXpathContaining(xPath, expected, rule);
     }

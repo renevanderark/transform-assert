@@ -34,7 +34,7 @@ public class TransformCompareWithTransformResults implements TransformResults {
 
 
     public TransformCompareWithTransformResults(TransformCompareWithTransformers transformCompareWithTransformers,
-                                                byte[] resultFromBaseline, byte[] resultUnderTest)  {
+                                                byte[] resultFromBaseline, byte[] resultUnderTest) {
 
         this.resultFromBaseline = resultFromBaseline;
         this.resultUnderTest = resultUnderTest;
@@ -220,7 +220,6 @@ public class TransformCompareWithTransformResults implements TransformResults {
                         : stringResults.size() == 0
                         ? ""
                         : "any of: " + stringResults;
-
 
 
                 errors.add(new AssertionError(report + String.format(
