@@ -203,6 +203,8 @@ public class TransformAssertWithTransformResult implements TransformResults {
         final Schema schema = schemaFactory.newSchema(xsdSource);
 
         final Validator validator = schema.newValidator();
+        validator.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+        validator.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
 
         final String report = LogUtil.mkRule("VALIDATE AGAINST XSD: " + xsd.getAbsolutePath(), rule);
 
