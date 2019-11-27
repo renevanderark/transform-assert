@@ -84,6 +84,8 @@
                 <configuration>
                     <show>public</show>
                     <nohelp>true</nohelp>
+                    <reportOutputDirectory>.</reportOutputDirectory>
+                    <destDir>docs</destDir>
                 </configuration>
             </plugin>
         </plugins>
