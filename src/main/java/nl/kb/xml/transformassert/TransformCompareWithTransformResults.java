@@ -33,8 +33,8 @@ public class TransformCompareWithTransformResults implements TransformResults {
     private List<AssertionError> errors = new ArrayList<>();
 
 
-    public TransformCompareWithTransformResults(TransformCompareWithTransformers transformCompareWithTransformers,
-                                                byte[] resultFromBaseline, byte[] resultUnderTest) {
+    TransformCompareWithTransformResults(TransformCompareWithTransformers transformCompareWithTransformers,
+                                         byte[] resultFromBaseline, byte[] resultUnderTest) {
 
         this.resultFromBaseline = resultFromBaseline;
         this.resultUnderTest = resultUnderTest;

@@ -12,6 +12,10 @@ import java.util.function.Consumer;
 
 public class TransformAssert {
 
+    private TransformAssert() {
+
+    }
+
     public static TransformAssertWithTransformer describe(File xsltFile, Consumer<String> logBack, Consumer<String> transformationOutput)
             throws TransformerException {
         final TransformAssertWithTransformer transformAssertWithTransformer =
