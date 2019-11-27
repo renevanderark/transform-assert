@@ -1,0 +1,5 @@
+1.12.2
+-    fixes xxe vulnerability parsing xsd files.
+-    fixes unclosed stream warnings
+-    adds javadoc
+-    code cleanup (mostly marks internals as package-private)
