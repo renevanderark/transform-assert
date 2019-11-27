@@ -4,6 +4,7 @@ import org.xml.sax.SAXException;
 
 import javax.xml.XMLConstants;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.stream.XMLInputFactory;
 import javax.xml.transform.Source;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.stream.StreamSource;
@@ -197,7 +198,10 @@ public class TransformAssertWithTransformResult implements TransformResults {
         final Source xmlSource = new StreamSource(xmlReader);
         final Source xsdSource = new StreamSource(xsdReader);
         final SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+        schemaFactory.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+        schemaFactory.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
         final Schema schema = schemaFactory.newSchema(xsdSource);
+
         final Validator validator = schema.newValidator();
 
         final String report = LogUtil.mkRule("VALIDATE AGAINST XSD: " + xsd.getAbsolutePath(), rule);
