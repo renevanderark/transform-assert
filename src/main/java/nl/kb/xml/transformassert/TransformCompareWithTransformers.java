@@ -12,6 +12,10 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.function.Consumer;
 
+/**
+ * An instance of this class is returned by {@link TransformAssertWithTransformer#whenComparingTo(File)}
+ * <p>It exposes methods to declare the xml {@link File} or {@link String} to run both stylesheets against</p>
+ */
 public class TransformCompareWithTransformers {
     private final TransformAssertWithTransformer underTest;
     private final TransformAssertWithTransformer baseline;
@@ -23,6 +27,16 @@ public class TransformCompareWithTransformers {
         this.baseline = baseline;
     }
 
+
+    /**
+     * Declares the xml {@link File} to be transformed by both XSTL stylesheets
+     * @param xmlFile the xml {@link File}
+     * @param parameters tuples of XSLT {@link String}-parameters
+     * @return instance of {@link TransformCompareWithTransformResults}
+     * @throws FileNotFoundException when the XML is not found
+     * @throws UnsupportedEncodingException when the UTF-8 charset is not supported
+     * @throws TransformerException when the XML file cannot be parsed by Saxon
+     */
     public TransformCompareWithTransformResults whenTransforming(File xmlFile, String... parameters) throws FileNotFoundException, UnsupportedEncodingException, TransformerException {
         final Reader reader1 = new InputStreamReader(new FileInputStream(xmlFile), StandardCharsets.UTF_8.name());
         final Reader reader2 = new InputStreamReader(new FileInputStream(xmlFile), StandardCharsets.UTF_8.name());
@@ -34,6 +48,14 @@ public class TransformCompareWithTransformers {
         return new TransformCompareWithTransformResults(this, resultFromBaseline, resultUnderTest);
     }
 
+    /**
+     * Declares the xml {@link String} to be transformed by both XSLT stylesheets
+     * @param xml the xml {@link String}
+     * @param parameters tuples of XSLT {@link String}-parameters
+     * @return instance of {@link TransformCompareWithTransformResults}
+     * @throws UnsupportedEncodingException when the UTF-8 charset is not supported
+     * @throws TransformerException when the XML file cannot be parsed by Saxon
+     */
     public TransformCompareWithTransformResults whenTransforming(String xml, String... parameters) throws UnsupportedEncodingException, TransformerException {
         final Reader reader1 = new InputStreamReader(new ByteArrayInputStream(xml.getBytes()), StandardCharsets.UTF_8.name());
         final Reader reader2 = new InputStreamReader(new ByteArrayInputStream(xml.getBytes()), StandardCharsets.UTF_8.name());
@@ -57,19 +79,19 @@ public class TransformCompareWithTransformers {
         return underTest.getErrorsAndWarnings();
     }
 
-    public TransformAssertWithTransformer getUnderTest() {
+    TransformAssertWithTransformer getUnderTest() {
         return underTest;
     }
 
-    public String getSourceXmlPath() {
+    String getSourceXmlPath() {
         return sourceXmlPath;
     }
 
-    public String getSourceXmlString() {
+    String getSourceXmlString() {
         return sourceXmlString;
     }
 
-    public TransformAssertWithTransformer getBaseline() {
+    TransformAssertWithTransformer getBaseline() {
         return baseline;
     }
 }
