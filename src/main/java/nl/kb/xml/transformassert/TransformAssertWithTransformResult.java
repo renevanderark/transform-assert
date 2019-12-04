@@ -247,7 +247,7 @@ public class TransformAssertWithTransformResult implements TransformResults {
      * @return instance of self exposing assertion methods and {@link #evaluate()}
      * @throws XPathExpressionException when the xpath is not valid, or namespace is not declared in {@link #usingNamespace(String, String)}
      */
-    public TransformAssertWithTransformResult andHasXpathContaining(String xPath, String expected, String... rule) throws XPathExpressionException {
+    public TransformAssertWithTransformResult andHasXpathContaining(String xPath, Object expected, String... rule) throws XPathExpressionException {
 
         return hasXpathContaining(xPath, expected, rule);
     }
