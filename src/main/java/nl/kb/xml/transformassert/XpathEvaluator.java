@@ -6,6 +6,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import javax.xml.namespace.NamespaceContext;
+import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -49,7 +50,11 @@ class XpathEvaluator {
         namespaces.put(key, value);
     }
 
-    List<String> getXpathResult(String xPath) throws XPathExpressionException {
+    List<Object> getXpathResult(String xPath) throws XPathExpressionException {
+        return getXpathResult(xPath, XPathConstants.NODESET);
+    }
+
+    List<Object> getXpathResult(String xPath, QName type) throws XPathExpressionException {
 
         final XPath xpath = xPathFactory.newXPath();
 
@@ -77,10 +82,15 @@ class XpathEvaluator {
         }
 
         final XPathExpression expression = xpath.compile(xPath);
-        final NodeList nodes = (NodeList) expression.evaluate(doc, XPathConstants.NODESET);
-        final List<String> result = new ArrayList<>();
-        for (int i = 0; i < nodes.getLength(); i++) {
-            result.add(nodes.item(i).getTextContent().trim());
+        final Object xpathResult = expression.evaluate(doc, type);
+        final List<Object> result = new ArrayList<>();
+        if (xpathResult instanceof NodeList) {
+            final NodeList nodes = (NodeList) xpathResult;
+            for (int i = 0; i < nodes.getLength(); i++) {
+                result.add(nodes.item(i).getTextContent().trim());
+            }
+        } else if (xpathResult instanceof Double) {
+            result.add(((Double) xpathResult).intValue());
         }
 
         return result;

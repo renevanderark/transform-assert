@@ -11,6 +11,7 @@ import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
+import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -119,7 +120,7 @@ public class TransformAssertWithTransformResult implements TransformResults {
         return this;
     }
 
-    private TransformAssertWithTransformResult matchXPath(String xPath, String expected, boolean negate, String... rule)
+    private TransformAssertWithTransformResult matchXPath(String xPath, Object expected, boolean negate, String... rule)
             throws XPathExpressionException {
 
         final String report = LogUtil.mkRule(
@@ -132,13 +133,16 @@ public class TransformAssertWithTransformResult implements TransformResults {
             return this;
         }
 
-        final List<String> stringResult = xpathEvaluator.getXpathResult(xPath);
-        if (stringResult.contains(expected) == negate) {
-            final String actual = stringResult.size() == 1
-                    ? stringResult.get(0)
-                    : stringResult.size() == 0
+        final List<Object> xpathResult = expected instanceof Integer
+                ? xpathEvaluator.getXpathResult(xPath, XPathConstants.NUMBER)
+                : xpathEvaluator.getXpathResult(xPath);
+
+        if (xpathResult.contains(expected) == negate) {
+            final String actual = xpathResult.size() == 1
+                    ? "" + xpathResult.get(0)
+                    : xpathResult.size() == 0
                     ? ""
-                    : "any of: " + stringResult;
+                    : "any of: " + xpathResult;
             errors.add(new AssertionError(String.format(
                     report + System.lineSeparator() +
                             "  Expected xpath %s%sto match: '%s'" + System.lineSeparator() +
@@ -163,7 +167,7 @@ public class TransformAssertWithTransformResult implements TransformResults {
      * @return instance of self exposing assertion methods and {@link #evaluate()}
      * @throws XPathExpressionException when the xpath is not valid, or namespace is not declared in {@link #usingNamespace(String, String)}
      */
-    public TransformAssertWithTransformResult hasXpathContaining(String xPath, String expected, String... rule)
+    public TransformAssertWithTransformResult hasXpathContaining(String xPath, Object expected, String... rule)
             throws XPathExpressionException {
 
         return matchXPath(xPath, expected, false, rule);
@@ -358,6 +362,5 @@ public class TransformAssertWithTransformResult implements TransformResults {
 
         logBack.accept(System.lineSeparator() + "IT SHOULD:");
     }
-
 
 }
