@@ -121,39 +121,42 @@ public class TransformAssertWithTransformResult implements TransformResults {
 
     private TransformAssertWithTransformResult matchXPath(String xPath, Object expected, boolean negate, String... rule)
             throws XPathExpressionException {
-
-        final String report = LogUtil.mkRule(
+        final String finalRule = LogUtil.mkRule(
                 (negate ? "NOT MATCH XPATH " : "MATCH XPATH ") + xPath + "='" + expected + "'"
                 , rule);
         try {
-            xpathEvaluator.loadDocument();
-        } catch (IOException | ParserConfigurationException | SAXException e) {
-            errors.add(new AssertionError("Got unparsable XML output from stylesheet"));
-            return this;
+
+            try {
+                xpathEvaluator.loadDocument();
+            } catch (IOException | ParserConfigurationException | SAXException e) {
+                errors.add(new AssertionError("Got unparsable XML output from stylesheet"));
+                return this;
+            }
+
+            final List<Object> xpathResult = expected instanceof Integer
+                    ? xpathEvaluator.getXpathResult(xPath, XPathConstants.NUMBER)
+                    : xpathEvaluator.getXpathResult(xPath);
+
+            if (xpathResult.contains(expected) == negate) {
+                final String actual = xpathResult.size() == 1
+                        ? "" + xpathResult.get(0)
+                        : xpathResult.size() == 0
+                        ? ""
+                        : "any of: " + xpathResult;
+                errors.add(new AssertionError(String.format(
+                        finalRule + System.lineSeparator() +
+                                "  Expected xpath %s%sto match: '%s'" + System.lineSeparator() +
+                                "  But got: '%s'" + System.lineSeparator()
+                        , xPath, negate ? " NOT " : " ", expected, actual
+                )));
+
+                LogUtil.indent(String.format("%s (%s)", finalRule, FAILED), 2, logBack);
+            } else {
+                LogUtil.indent(String.format("%s (%s)", finalRule, OK), 2, logBack);
+            }
+        } catch (XPathExpressionException e) {
+            throw new XPathExpressionException("Failed to evaluate xpath expression '" + xPath + "' for rule '" + finalRule + "'");
         }
-
-        final List<Object> xpathResult = expected instanceof Integer
-                ? xpathEvaluator.getXpathResult(xPath, XPathConstants.NUMBER)
-                : xpathEvaluator.getXpathResult(xPath);
-
-        if (xpathResult.contains(expected) == negate) {
-            final String actual = xpathResult.size() == 1
-                    ? "" + xpathResult.get(0)
-                    : xpathResult.size() == 0
-                    ? ""
-                    : "any of: " + xpathResult;
-            errors.add(new AssertionError(String.format(
-                    report + System.lineSeparator() +
-                            "  Expected xpath %s%sto match: '%s'" + System.lineSeparator() +
-                            "  But got: '%s'" + System.lineSeparator()
-                    , xPath, negate ? " NOT " : " ", expected, actual
-            )));
-
-            LogUtil.indent(String.format("%s (%s)", report, FAILED), 2, logBack);
-        } else {
-            LogUtil.indent(String.format("%s (%s)", report, OK), 2, logBack);
-        }
-
 
         return this;
     }

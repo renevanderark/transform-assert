@@ -341,4 +341,26 @@ public class TransformAssertTest {
                 .evaluate();
     }
 
+    @Test
+    public void logsRuleOfInvalidXpathExpression() throws UnsupportedEncodingException {
+
+        final String xPath = "~!@#$%^&*(";
+        final String expected = "nothing";
+        try {
+            describeXml(XML.getBytes())
+                    .hasXpathContaining(xPath, expected, "LOG ME")
+                    .evaluate();
+        } catch (XPathExpressionException e) {
+            assertThat(e.getMessage(), containsString("LOG ME"));
+        }
+
+        try {
+            describeXml(XML.getBytes())
+                    .hasXpathContaining(xPath, expected)
+                    .evaluate();
+        } catch (XPathExpressionException e) {
+            assertThat(e.getMessage(), containsString("MATCH XPATH " + xPath + "='" + expected + "'"));
+        }
+    }
+
 }
