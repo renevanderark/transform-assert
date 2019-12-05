@@ -333,4 +333,12 @@ public class TransformAssertTest {
                 .hasXpathContaining("/root/foo/text()", "bar")
                 .evaluate();
     }
+
+    @Test
+    public void supportsCountAssertions() throws XPathExpressionException, UnsupportedEncodingException {
+        describeXml(XML.getBytes())
+                .hasXpathContaining("count(/root/foo)", 1)
+                .evaluate();
+    }
+
 }

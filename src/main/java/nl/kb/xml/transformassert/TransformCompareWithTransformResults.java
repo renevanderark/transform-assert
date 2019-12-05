@@ -223,8 +223,8 @@ public class TransformCompareWithTransformResults implements TransformResults {
      * @throws XPathExpressionException when the xpath is not valid, or namespace is not declared in {@link #usingNamespace(String, String)}
      */
     public TransformCompareWithTransformResults hasMatchingXPathResultsFor(String xPath, String... rule) throws XPathExpressionException {
-        final List<String> stringResults;
-        final List<String> expected;
+        final List<Object> xpathResults;
+        final List<Object> expected;
 
         try {
             baselineEvaluator.loadDocument();
@@ -240,31 +240,31 @@ public class TransformCompareWithTransformResults implements TransformResults {
             return this;
         }
 
-        stringResults = resultEvaluator.getXpathResult(xPath);
+        xpathResults = resultEvaluator.getXpathResult(xPath);
         expected = baselineEvaluator.getXpathResult(xPath);
 
 
-        if (stringResults.size() > expected.size()) {
+        if (xpathResults.size() > expected.size()) {
             errors.add(new AssertionError("MATCH XPATH " + xPath + String.format(
                     System.lineSeparator() +
                             "  Expected xpath %s to result in: %d items" + System.lineSeparator() +
                             "  But got: %d items" + System.lineSeparator()
-                    , xPath, expected.size(), stringResults.size()
+                    , xPath, expected.size(), xpathResults.size()
             )));
         }
 
 
-        for (String expectedResult : expected) {
+        for (Object expectedResult : expected) {
             final String report = LogUtil.mkRule(
                     "MATCH XPATH " + xPath + "='" + expectedResult + "'"
                     , rule);
 
-            if (!stringResults.contains(expectedResult)) {
-                final String actual = stringResults.size() == 1
-                        ? stringResults.get(0)
-                        : stringResults.size() == 0
+            if (!xpathResults.contains(expectedResult)) {
+                final String actual = xpathResults.size() == 1
+                        ? "" + xpathResults.get(0)
+                        : xpathResults.size() == 0
                         ? ""
-                        : "any of: " + stringResults;
+                        : "any of: " + xpathResults;
 
 
                 errors.add(new AssertionError(report + String.format(
