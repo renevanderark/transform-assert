@@ -1,3 +1,6 @@
+1.21.4
+-    print applied rule for invalid xpath expression.
+
 1.21.3
 -    adds support for number-returning xpath functions
 
