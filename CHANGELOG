@@ -1,7 +1,7 @@
-1.12.3
+1.21.3
 -    adds support for number-returning xpath functions
 
-1.12.2
+1.21.2
 -    fixes xxe vulnerability parsing xsd files.
 -    fixes unclosed stream warnings
 -    adds javadoc
